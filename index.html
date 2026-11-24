@@ -536,7 +536,7 @@ function renderNav(){
   $('#overallBar').style.width = (100 * done / Math.max(1, all.length)) + '%';
   $('#overallLabel').textContent = done + ' von ' + all.length + ' Übungen gelöst';
   $('#subjInsy').classList.toggle('on', SUBJ === 'insy'); $('#subjSew').classList.toggle('on', SUBJ === 'sew'); $('#subjItp').classList.toggle('on', SUBJ === 'itp');
-  $('#brandSub').textContent = SUBJ === 'sew' ? 'SEW · 3. Jahrgang · Python, Rekursion & Klassen' : SUBJ === 'itp' ? 'ITP · 3. Jahrgang · Projektmanagement' : 'INSY · 3. Jahrgang · SELECT bis JOIN';
+  $('#brandSub').textContent = SUBJ === 'sew' ? 'SEW · 3. Jahrgang · Python, Rekursion, Regex & Klassen' : SUBJ === 'itp' ? 'ITP · 3. Jahrgang · Projektmanagement' : 'INSY · 3. Jahrgang · SELECT bis JOIN';
   $('#brandTitle').textContent = SUBJ === 'sew' ? 'Python lernen' : SUBJ === 'itp' ? 'Projektmanagement' : 'SQL lernen';
 }
 function currentRoute(){
@@ -591,7 +591,7 @@ function renderSewStart(){
     <div><b>2 · Üben</b>Quizfragen (eine oder mehrere richtig), Reihenfolgen ordnen und offene Fragen mit Musterantwort.</div>
     <div><b>3 · Wiederholen</b>Am Ende die Test-Wiederholung mit allen wichtigen Punkten auf einen Blick.</div>
   </div>
-` : `<div class="crumbs">SEW · Softwareentwicklung</div><h2 class="title">Python, Rekursion & Klassen – Schritt für Schritt</h2>
+` : `<div class="crumbs">SEW · Softwareentwicklung</div><h2 class="title">Python, Rekursion, Regex & Klassen – Schritt für Schritt</h2>
   <p class="source">Aufgebaut wie sew.htl-villach.at · Jahr 3: Kapitel 1 „Einführung in Python“, Kapitel 2 „Rekursion“, Kapitel 4 „Klassen in Python“ und die passenden Aufgaben</p>
   <div class="how">
     <div><b>1 · Theorie lesen</b>Jedes Kapitel erklärt den Stoff aus dem Skriptum. Alle Code-Beispiele kannst du direkt ausführen.</div>

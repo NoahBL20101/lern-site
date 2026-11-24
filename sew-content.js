@@ -1,4 +1,4 @@
-// SEW 3. Jahrgang – Struktur wie sew.htl-villach.at: Kapitel 1, 2, 4, Aufgaben, Probetest, Test
+// SEW 3. Jahrgang – Struktur wie sew.htl-villach.at: Kapitel 1–4, Aufgaben, Probetest, Test
 window.SEW_LESSONS = [
  {
   "id": "py-start",
@@ -768,6 +768,282 @@ window.SEW_LESSONS = [
     ],
     "correct": 1,
     "explain": "Im leeren String kommt kein Zeichen vor → 0. Der Schritt arbeitet mit text[0] und text[1:]."
+   }
+  ]
+ },
+ {
+  "id": "re-start",
+  "group": "Kapitel 3 · Reguläre Ausdrücke",
+  "num": "3.1",
+  "title": "Wozu Regex? Erste Schritte mit dem re-Modul",
+  "short": "Erste Schritte",
+  "source": "sew.htl-villach.at · Jahr 3 · 3. Reguläre Ausdrücke – Einleitung, Erste Schritte mit dem re-Modul",
+  "theory": "\n<h3>Das Problem</h3>\n<p>Viele Aufgaben der Textverarbeitung folgen demselben Schema:</p>\n<ul>\n  <li><b>Prüfen</b>, ob eine Eingabe einem bestimmten Format entspricht,</li>\n  <li><b>alle Stellen finden</b>, an denen ein Format vorkommt,</li>\n  <li><b>Teile ersetzen</b> nach einem Schema.</li>\n</ul>\n<p>Mit String-Methoden wie <code>in</code> oder <code>startswith</code> geht das nur behelfsmäßig: Ob ein Text ein <code>@</code> enthält, sagt wenig darüber, ob er eine gültige E-Mail-Adresse ist.</p>\n<p class=\"callout\"><b>Reguläre Ausdrücke</b> (<i>regular expressions</i>, kurz <b>Regex</b>) sind eine kompakte Notation, die ein <b>Textmuster</b> beschreibt – etwa „zwei Ziffern, Punkt, zwei Ziffern, Punkt, vier Ziffern“ für ein Datum. Sie sind eine eigene kleine Sprache innerhalb der Programmiersprache, und die Syntax funktioniert fast überall gleich: Python, JavaScript, Java, die Suche in VS Code, Datenbanken, Kommandozeile.</p>\n\n<h3>Das re-Modul</h3>\n<div class=\"example\" data-lang=\"py\">import re\n\ntext = \"Der Kurs beginnt am 15.09.2026 im Raum 214.\"\n\nmatch = re.search(r\"\\d{2}\\.\\d{2}\\.\\d{4}\", text)\nif match:\n    print(match.group())</div>\n<ul>\n  <li><code>re.search(muster, text)</code> sucht die <b>erste</b> Stelle, auf die das Muster passt, und liefert ein <b>Match-Objekt</b> – oder <code>None</code>, wenn nichts passt.</li>\n  <li><code>match.group()</code> liefert den gefundenen Text.</li>\n  <li><code>\\d{2}\\.\\d{2}\\.\\d{4}</code> Baustein für Baustein: <b>zwei Ziffern, Punkt, zwei Ziffern, Punkt, vier Ziffern</b>.</li>\n</ul>\n\n<h3>Raw-Strings: immer ein r davor</h3>\n<p>Regex-Muster schreibt man als <b>Raw-String</b> mit vorangestelltem <code>r</code>: <code>r\"\\d+\"</code>. In normalen Strings hat der Backslash schon eine Bedeutung (<code>\\n</code> = Zeilenumbruch, <code>\\b</code> = Backspace …). Das <code>r</code> schaltet diese Interpretation ab, damit der Backslash unverändert bei der Regex-Maschine ankommt.</p>\n<div class=\"example\" data-lang=\"py\">print(\"a\\tb\")      # normal string: \\t becomes a tab\nprint(r\"a\\tb\")     # raw string: backslash stays</div>\n<p class=\"callout\"><b>Pauschale Regel:</b> Jedes Regex-Muster bekommt ein <code>r</code>.</p>\n<p class=\"tip\">💡 Muster entwickelt man am besten auf <b>regex101.com</b> (Flavor „Python“ wählen): Treffer werden live markiert, jeder Baustein wird in Worten erklärt, und die Inhalte aller Gruppen werden angezeigt.</p>\n",
+  "exercises": [
+   {
+    "id": "re1-a",
+    "type": "quiz",
+    "task": "Was liefert <code>re.search(muster, text)</code>, wenn das Muster <b>nirgends</b> passt?",
+    "options": [
+     "einen leeren String \"\"",
+     "None",
+     "False",
+     "-1"
+    ],
+    "correct": 1,
+    "explain": "Darum prüft man mit if match: … bevor man match.group() aufruft."
+   },
+   {
+    "id": "re1-b",
+    "type": "quiz",
+    "task": "Warum schreibt man vor jedes Regex-Muster ein <code>r</code>?",
+    "options": [
+     "Damit die Suche schneller ist",
+     "Raw-String: Der Backslash wird nicht von Python interpretiert (wie bei \\n), sondern kommt unverändert bei der Regex-Maschine an",
+     "Damit Groß-/Kleinschreibung ignoriert wird",
+     "r steht für „regex“ und ist Pflicht"
+    ],
+    "correct": 1,
+    "explain": "Ohne r könnte z. B. \\b als Backspace-Zeichen gelesen werden statt als Wortgrenze."
+   },
+   {
+    "id": "re1-c",
+    "type": "output",
+    "code": "import re\n\ntext = \"Raum 214, Stock 2, Platz 7\"\nm = re.search(r\"\\d+\", text)\nprint(m.group())\nprint(re.search(r\"\\d{4}\", text))",
+    "lines": 2,
+    "explain": "search findet nur das ERSTE Vorkommen (214). Vier Ziffern hintereinander gibt es nicht → None."
+   },
+   {
+    "id": "re1-d",
+    "type": "py",
+    "task": "Schreib <code>find_year(text)</code>: liefert die <b>erste vierstellige Zahl</b> im Text als String, oder <code>None</code>, wenn es keine gibt.",
+    "starter": "import re\n\ndef find_year(text):\n    ",
+    "hint": "m = re.search(r\"\\d{4}\", text); return m.group() if m else None",
+    "solution": "import re\n\ndef find_year(text):\n    m = re.search(r\"\\d{4}\", text)\n    if m:\n        return m.group()\n    return None",
+    "tests": "assert find_year(\"Matura 2028, Start 2024\") == \"2028\", \"Die ERSTE vierstellige Zahl ist 2028.\"\nassert find_year(\"keine Zahl\") is None, \"Ohne Treffer → None.\"\nassert find_year(\"Raum 214\") is None, \"214 hat nur drei Ziffern.\""
+   }
+  ]
+ },
+ {
+  "id": "re-bausteine",
+  "group": "Kapitel 3 · Reguläre Ausdrücke",
+  "num": "3.2",
+  "title": "Die Bausteine: Zeichenklassen, Quantoren, Anker",
+  "short": "Bausteine",
+  "source": "sew.htl-villach.at · Jahr 3 · 3. Reguläre Ausdrücke – Die Bausteine, Zeichenklassen, Quantoren, Anker",
+  "theory": "\n<p>Ein regulärer Ausdruck besteht aus <b>gewöhnlichen Zeichen</b>, die für sich selbst stehen, und <b>Sonderzeichen</b> mit eigener Bedeutung.</p>\n<table class=\"ops\">\n<tr><td><b>Baustein</b></td><td><b>Bedeutung</b></td><td><b>Beispiel</b></td><td><b>passt auf</b></td></tr>\n<tr><td><code>abc</code></td><td>genau diese Zeichen</td><td><code>Raum</code></td><td>„Raum“</td></tr>\n<tr><td><code>.</code></td><td>ein <b>beliebiges</b> Zeichen</td><td><code>H.t</code></td><td>„Hut“, „Hit“, „H9t“</td></tr>\n<tr><td><code>[abc]</code></td><td>eines der Zeichen a, b, c</td><td><code>[aeiou]</code></td><td>einen Vokal</td></tr>\n<tr><td><code>[a-z]</code></td><td>ein Zeichen aus dem Bereich</td><td><code>[0-5]</code></td><td>0 bis 5</td></tr>\n<tr><td><code>[^abc]</code></td><td>jedes Zeichen <b>außer</b> a, b, c</td><td><code>[^0-9]</code></td><td>keine Ziffer</td></tr>\n<tr><td><code>\\d</code></td><td>eine Ziffer, wie <code>[0-9]</code></td><td><code>\\d\\d</code></td><td>„42“</td></tr>\n<tr><td><code>\\w</code></td><td>Buchstabe, Ziffer oder _</td><td><code>\\w+</code></td><td>„word_1“</td></tr>\n<tr><td><code>\\s</code></td><td>Leerzeichen, Tab, Zeilenumbruch</td><td><code>\\s</code></td><td>„ “</td></tr>\n<tr><td><code>*</code></td><td>Vorheriges <b>0-mal oder öfter</b></td><td><code>ab*</code></td><td>„a“, „ab“, „abbb“</td></tr>\n<tr><td><code>+</code></td><td>Vorheriges <b>1-mal oder öfter</b></td><td><code>ab+</code></td><td>„ab“, „abbb“</td></tr>\n<tr><td><code>?</code></td><td>Vorheriges <b>0- oder 1-mal</b></td><td><code>ab?</code></td><td>„a“, „ab“</td></tr>\n<tr><td><code>{n}</code></td><td>Vorheriges genau n-mal</td><td><code>\\d{4}</code></td><td>„2026“</td></tr>\n<tr><td><code>{n,m}</code></td><td>Vorheriges n- bis m-mal</td><td><code>\\d{1,3}</code></td><td>„7“, „42“, „255“</td></tr>\n<tr><td><code>^</code></td><td>Anfang des Textes</td><td><code>^Der</code></td><td>„Der…“ am Anfang</td></tr>\n<tr><td><code>$</code></td><td>Ende des Textes</td><td><code>\\.png$</code></td><td>„….png“ am Ende</td></tr>\n<tr><td><code>(...)</code></td><td>Gruppe</td><td><code>(ab)+</code></td><td>„ab“, „abab“</td></tr>\n<tr><td><code>a|b</code></td><td>a oder b</td><td><code>png|jpg</code></td><td>„png“ oder „jpg“</td></tr>\n</table>\n\n<h3>Zeichenklassen: Welche Zeichen sind erlaubt?</h3>\n<ul>\n  <li>Eckige Klammern = Menge erlaubter Zeichen für <b>eine</b> Position: <code>[Jj]a</code> passt auf „Ja“ und „ja“.</li>\n  <li>Bereiche mit Bindestrich: <code>[a-zA-Z]</code> (Buchstabe, <b>ohne Umlaute</b>), <code>[0-7]</code>.</li>\n  <li><code>^</code> <b>direkt nach</b> <code>[</code> negiert: <code>[^\"]</code> = jedes Zeichen außer Anführungszeichen.</li>\n  <li>Abkürzungen: <code>\\d</code> (digit), <code>\\w</code> (word), <code>\\s</code> (space). Großbuchstaben bedeuten das Gegenteil: <code>\\D</code>, <code>\\W</code>, <code>\\S</code>.</li>\n  <li>Der Punkt <code>.</code> passt auf <b>jedes</b> Zeichen. Ein echter Punkt muss entwertet werden: <code>\\.</code> – ebenso <code>\\+</code>, <code>\\(</code>, <code>\\?</code>.</li>\n</ul>\n\n<h3>Quantoren: Wie oft?</h3>\n<p>Ein Quantor bezieht sich <b>immer auf den Baustein direkt davor</b>: <code>\\d+</code> = eine oder mehr Ziffern, <code>[a-z]*</code> = null oder mehr Kleinbuchstaben, <code>https?</code> = „http“ mit optionalem „s“.</p>\n<p class=\"callout\">Häufiges Missverständnis: <code>ab+</code> heißt „a, dann ein oder mehrere b“ – <b>nicht</b> „ab mehrfach“. Dafür braucht es eine Gruppe: <code>(ab)+</code>.</p>\n<p><code>\\d{4}</code> = genau vier, <code>\\d{2,4}</code> = zwei bis vier, <code>\\d{2,}</code> = mindestens zwei Ziffern.</p>\n\n<h3>Anker: Wo im Text?</h3>\n<p>Ohne Anker findet <code>re.search()</code> das Muster <b>irgendwo</b>: <code>re.search(r\"\\d{3}\", \"abc12345\")</code> ist ein Treffer! Anker binden das Muster an eine Position:</p>\n<ul>\n  <li><code>^</code> = Textanfang, <code>$</code> = Textende → <code>^\\d{4}$</code> passt nur, wenn der <b>ganze</b> Text aus genau vier Ziffern besteht.</li>\n  <li><code>\\b</code> = <b>Wortgrenze</b>: <code>r\"\\bRaum\\b\"</code> findet „Raum“, aber nicht „Raumschiff“.</li>\n</ul>\n<h3>re.fullmatch – die ganze Eingabe prüfen</h3>\n<p>Für die typische <b>Validierung</b> („Ist diese Eingabe als Ganzes gültig?“) gibt es <code>re.fullmatch()</code>: Das Muster muss den <b>gesamten</b> String abdecken.</p>\n<div class=\"example\" data-lang=\"py\">import re\n\ndef is_postal_code(text):\n    \"\"\"Check for a valid Austrian postal code.\"\"\"\n    return re.fullmatch(r\"[1-9]\\d{3}\", text) is not None\n\nprint(is_postal_code(\"4020\"))\nprint(is_postal_code(\"40201\"))\nprint(is_postal_code(\"A-4020\"))\nprint(re.search(r\"[1-9]\\d{3}\", \"40201\") is not None)   # search finds a part!</div>\n<p>Österreichische Postleitzahlen sind vierstellig und beginnen nicht mit 0 – daher <code>[1-9]</code> an erster Stelle.</p>\n",
+  "exercises": [
+   {
+    "id": "re2-a",
+    "type": "quiz",
+    "task": "Worauf passt <code>ab+</code> – und worauf <code>(ab)+</code>?",
+    "options": [
+     "Beide auf „abab“",
+     "ab+ auf „ab“, „abb“, „abbb“ … (b wiederholt); (ab)+ auf „ab“, „abab“ … (die Gruppe wiederholt)",
+     "ab+ auf „abab“, (ab)+ auf „abb“",
+     "Beide sind gleich"
+    ],
+    "correct": 1,
+    "explain": "Ein Quantor bezieht sich immer auf den Baustein direkt davor."
+   },
+   {
+    "id": "re2-b",
+    "type": "multi",
+    "task": "Auf welche Texte passt <code>^[ABC]\\d{3}[a-z]?$</code> (als Ganzes)?",
+    "options": [
+     "A123",
+     "B456x",
+     "C12",
+     "D123"
+    ],
+    "correct": [
+     0,
+     1
+    ],
+    "explain": "Ein Großbuchstabe A/B/C, genau drei Ziffern, optional ein Kleinbuchstabe. C12 hat zu wenige Ziffern, D ist nicht erlaubt."
+   },
+   {
+    "id": "re2-c",
+    "type": "multi",
+    "task": "Auf welche Texte passt <code>\\d+([.,]\\d{1,2})?</code> mit <code>re.fullmatch</code>?",
+    "options": [
+     "42",
+     "3,50",
+     "7.125",
+     ".5"
+    ],
+    "correct": [
+     0,
+     1
+    ],
+    "explain": "Ziffern, optional ein Punkt oder Komma mit 1–2 Nachkommastellen. 7.125 hat drei, .5 beginnt ohne Ziffer."
+   },
+   {
+    "id": "re2-d",
+    "type": "quiz",
+    "task": "Was unterscheidet <code>re.search</code> von <code>re.fullmatch</code> – und was nimmt man zur <b>Validierung</b> von Eingaben?",
+    "options": [
+     "Kein Unterschied",
+     "search findet das Muster irgendwo im Text, fullmatch nur, wenn der ganze Text passt → zur Validierung fullmatch",
+     "fullmatch ist nur für Zahlen",
+     "search prüft den ganzen Text, fullmatch nur den Anfang"
+    ],
+    "correct": 1,
+    "explain": "re.search(r\"\\d{4}\", \"40201\") meldet einen Treffer – fullmatch nicht."
+   },
+   {
+    "id": "re2-e",
+    "type": "output",
+    "code": "import re\n\nprint(re.search(r\"\\bRaum\\b\", \"Raumschiff\") is not None)\nprint(re.search(r\"\\d{3}\", \"abc12345\") is not None)\nprint(re.fullmatch(r\"\\d{3}\", \"abc12345\") is not None)\nprint(re.fullmatch(r\"H.t\", \"H9t\") is not None)",
+    "lines": 4,
+    "explain": "\\b verlangt eine Wortgrenze nach „Raum“. search findet 123 mitten im Text, fullmatch nicht. Der Punkt passt auf jedes Zeichen."
+   },
+   {
+    "id": "re2-f",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 06 B</span> <code>is_time(text)</code>: prüft eine Uhrzeit im Format <code>HH:MM</code> von <b>00:00 bis 23:59</b>. Liefert True/False.",
+    "starter": "import re\n\ndef is_time(text):\n    ",
+    "hint": "Stunde: ([01]\\d|2[0-3]) – Minute: [0-5]\\d. Mit re.fullmatch(…) is not None.",
+    "solution": "import re\n\ndef is_time(text):\n    return re.fullmatch(r\"([01]\\d|2[0-3]):[0-5]\\d\", text) is not None",
+    "tests": "for t in [\"00:00\", \"09:30\", \"19:59\", \"23:59\"]:\n    assert is_time(t) is True, f\"{t} ist gültig.\"\nfor t in [\"24:00\", \"23:60\", \"9:30\", \"12:5\", \"12-30\", \" 12:30\", \"12:30x\"]:\n    assert is_time(t) is False, f\"{t!r} ist ungültig.\""
+   },
+   {
+    "id": "re2-g",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 06 B</span> <code>is_license_plate(text)</code>: österreichisches Kennzeichen wie <code>VI-123AB</code> – <b>1–2 Großbuchstaben, Bindestrich, 1–4 Ziffern, 1–2 Großbuchstaben</b>.",
+    "starter": "import re\n\ndef is_license_plate(text):\n    ",
+    "hint": "r\"[A-Z]{1,2}-\\d{1,4}[A-Z]{1,2}\" mit fullmatch",
+    "solution": "import re\n\ndef is_license_plate(text):\n    return re.fullmatch(r\"[A-Z]{1,2}-\\d{1,4}[A-Z]{1,2}\", text) is not None",
+    "tests": "for t in [\"VI-123AB\", \"W-1A\", \"SP-4567X\"]:\n    assert is_license_plate(t), f\"{t} ist gültig.\"\nfor t in [\"VIL-123AB\", \"VI123AB\", \"VI-12345A\", \"vi-123ab\", \"VI-123\", \"VI-123ABC\"]:\n    assert not is_license_plate(t), f\"{t} ist ungültig.\""
+   }
+  ]
+ },
+ {
+  "id": "re-gruppen",
+  "group": "Kapitel 3 · Reguläre Ausdrücke",
+  "num": "3.3",
+  "title": "Muster entwickeln, Gruppen & Alternativen",
+  "short": "Gruppen",
+  "source": "sew.htl-villach.at · Jahr 3 · 3. Reguläre Ausdrücke – Muster entwickeln, Gruppen: Teile extrahieren, Alternativen",
+  "theory": "\n<h3>Muster entstehen iterativ</h3>\n<p>Ein Regex entsteht nicht in einem Wurf. Beispiel: der <b>Timecode</b> aus Kapitel 1, <code>01:00:02:11</code> = <code>HH:MM:SS:FF</code>.</p>\n<ol class=\"steps\">\n  <li><code>Grob</code> <span>vier Zahlenpaare mit Doppelpunkt: <code>\\d{2}:\\d{2}:\\d{2}:\\d{2}</code> – passt aber auch auf 99:99:99:99</span></li>\n  <li><code>Verfeinern</code> <span>Minuten/Sekunden 00–59: <code>[0-5]\\d</code>; Frames bei 25 fps 00–24: <code>[01]\\d|2[0-4]</code></span></li>\n  <li><code>Prüfen</code> <span>zusammensetzen und mit fullmatch gegen Beispiele UND Gegenbeispiele testen</span></li>\n</ol>\n<div class=\"example\" data-lang=\"py\">import re\n\npattern = r\"\\d{2}:[0-5]\\d:[0-5]\\d:([01]\\d|2[0-4])\"\n\nprint(re.fullmatch(pattern, \"01:00:02:11\") is not None)\nprint(re.fullmatch(pattern, \"01:61:02:11\") is not None)\nprint(re.fullmatch(pattern, \"01:00:02:25\") is not None)</div>\n<p class=\"callout\"><b>Verfahren:</b> mit einer laxen Version beginnen → Gegenbeispiele suchen → verschärfen. Dazu regex101.com verwenden.</p>\n\n<h3>Gruppen: Teile extrahieren</h3>\n<p>Runde Klammern <b>gruppieren</b> nicht nur, sie <b>fangen</b> auch (<i>capture groups</i>): Der Teil des Treffers in einer Gruppe ist danach einzeln abrufbar. So wird Regex vom Prüf- zum <b>Extraktionswerkzeug</b>.</p>\n<div class=\"example\" data-lang=\"py\">import re\n\ntext = \"Camera B, clip 0047, recorded on 15.09.2026\"\n\nm = re.search(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", text)\nif m:\n    print(m.group())     # the whole match\n    print(m.group(1))    # first group: day\n    print(m.group(2))    # second group: month\n    print(m.group(3))    # third group: year</div>\n<h3>Benannte Gruppen</h3>\n<p>Bei vielen Gruppen wird Durchzählen fehleranfällig. <b>Benannte Gruppen</b> <code>(?P&lt;name&gt;...)</code> machen das Muster länger, den Zugriff aber eindeutig:</p>\n<div class=\"example\" data-lang=\"py\">import re\n\ntext = \"recorded on 15.09.2026\"\npattern = r\"(?P&lt;day&gt;\\d{2})\\.(?P&lt;month&gt;\\d{2})\\.(?P&lt;year&gt;\\d{4})\"\nm = re.search(pattern, text)\nprint(m.group(\"year\"))\nprint(m.groupdict())</div>\n<p>Beispiel aus der Medienproduktion: Dateinamen nach dem Schema <code>project_scene-take_camera.extension</code>, etwa <code>commercial_03-2_A.mp4</code>:</p>\n<div class=\"example\" data-lang=\"py\">import re\n\npattern = r\"(?P&lt;project&gt;\\w+)_(?P&lt;scene&gt;\\d{2})-(?P&lt;take&gt;\\d+)_(?P&lt;camera&gt;[A-Z])\\.(?P&lt;extension&gt;\\w+)\"\n\nm = re.fullmatch(pattern, \"commercial_03-2_A.mp4\")\nif m:\n    print(f\"scene {m.group('scene')}, take {m.group('take')}, camera {m.group('camera')}\")</div>\n\n<h3>Alternativen</h3>\n<p><code>|</code> trennt Alternativen: <code>png|jpg|gif</code>. Ohne Klammern gilt die Alternative für das <b>ganze</b> Muster links und rechts – darum meist mit Gruppe eingrenzen: <code>\\.(png|jpg|gif)$</code>.</p>\n<div class=\"example\" data-lang=\"py\">import re\n\nfor name in [\"logo.png\", \"photo.jpg\", \"clip.mp4\", \"png_info.txt\"]:\n    print(name, re.search(r\"\\.(png|jpg|gif)$\", name) is not None)</div>\n",
+  "exercises": [
+   {
+    "id": "re3-a",
+    "type": "output",
+    "code": "import re\n\nm = re.search(r\"(\\d{2}):(\\d{2})\", \"Termin um 09:30 Uhr\")\nprint(m.group())\nprint(m.group(1))\nprint(int(m.group(2)) + 15)",
+    "lines": 3,
+    "explain": "group() ist der ganze Treffer, group(1)/(2) die Gruppen – als String! Darum int() vor dem Rechnen."
+   },
+   {
+    "id": "re3-b",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 06 C</span> <code>parse_appointment(text)</code>: extrahiert aus einem Text wie <code>\"Termin: 14.03.2026 um 09:30\"</code> Tag, Monat, Jahr, Stunde und Minute und liefert sie als <b>Dictionary mit ganzen Zahlen</b>: <code>{\"day\": 14, \"month\": 3, \"year\": 2026, \"hour\": 9, \"minute\": 30}</code>. Kein Treffer → <code>None</code>. Verwende <b>benannte Gruppen</b>.",
+    "starter": "import re\n\ndef parse_appointment(text):\n    ",
+    "hint": "r\"(?P&lt;day&gt;\\d{2})\\.(?P&lt;month&gt;\\d{2})\\.(?P&lt;year&gt;\\d{4}) um (?P&lt;hour&gt;\\d{2}):(?P&lt;minute&gt;\\d{2})\" – dann {k: int(v) for k, v in m.groupdict().items()}",
+    "solution": "import re\n\ndef parse_appointment(text):\n    pattern = r\"(?P<day>\\d{2})\\.(?P<month>\\d{2})\\.(?P<year>\\d{4}) um (?P<hour>\\d{2}):(?P<minute>\\d{2})\"\n    m = re.search(pattern, text)\n    if not m:\n        return None\n    return {key: int(value) for key, value in m.groupdict().items()}",
+    "tests": "assert parse_appointment(\"Termin: 14.03.2026 um 09:30\") == {\"day\": 14, \"month\": 3, \"year\": 2026, \"hour\": 9, \"minute\": 30}, f\"Ergebnis: {parse_appointment('Termin: 14.03.2026 um 09:30')}\"\nassert parse_appointment(\"kein Termin\") is None, \"Kein Treffer → None.\"\nassert \"?P<\" in _src, \"Bitte benannte Gruppen (?P<name>...) verwenden.\""
+   },
+   {
+    "id": "re3-c",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 06 B</span> <code>is_date(text)</code>: Datum <code>TT.MM.JJJJ</code> mit grober Bereichsprüfung: <b>Tag 01–31</b>, <b>Monat 01–12</b>, Jahr vierstellig.",
+    "starter": "import re\n\ndef is_date(text):\n    ",
+    "hint": "Tag: (0[1-9]|[12]\\d|3[01]) – Monat: (0[1-9]|1[0-2]) – Jahr: \\d{4}",
+    "solution": "import re\n\ndef is_date(text):\n    return re.fullmatch(r\"(0[1-9]|[12]\\d|3[01])\\.(0[1-9]|1[0-2])\\.\\d{4}\", text) is not None",
+    "tests": "for t in [\"01.01.2026\", \"31.12.1999\", \"15.09.2026\", \"29.02.2024\"]:\n    assert is_date(t), f\"{t} ist gültig.\"\nfor t in [\"00.01.2026\", \"32.01.2026\", \"15.13.2026\", \"15.00.2026\", \"1.1.2026\", \"15-09-2026\", \"15.09.26\"]:\n    assert not is_date(t), f\"{t} ist ungültig.\"",
+    "note": "Grobe Prüfung: 31.02. würde noch durchgehen – das kann eine Regex sinnvoll nicht leisten."
+   },
+   {
+    "id": "re3-d",
+    "type": "quiz",
+    "task": "Warum sind <b>benannte Gruppen</b> bei vielen Gruppen besser als nummerierte?",
+    "options": [
+     "Sie sind schneller",
+     "Der Zugriff ist eindeutig und lesbar (m.group(\"year\") statt m.group(3)) – Durchzählen ist fehleranfällig, besonders wenn das Muster später geändert wird",
+     "Nummerierte Gruppen gibt es in Python nicht",
+     "Benannte Gruppen finden mehr Treffer"
+    ],
+    "correct": 1,
+    "explain": "Das Muster wird länger, aber der Code verständlicher und robuster."
+   },
+   {
+    "id": "re3-e",
+    "type": "multi",
+    "task": "Welche Dateinamen passen auf <code>re.search(r\"\\.(png|jpg|gif)$\", name)</code>?",
+    "options": [
+     "logo.png",
+     "png_logo.txt",
+     "bild.jpg",
+     "anim.gif.bak"
+    ],
+    "correct": [
+     0,
+     2
+    ],
+    "explain": "Das $ verlangt die Endung ganz am Schluss."
+   }
+  ]
+ },
+ {
+  "id": "re-funktionen",
+  "group": "Kapitel 3 · Reguläre Ausdrücke",
+  "num": "3.4",
+  "title": "findall, sub & co. – und wann Regex falsch ist",
+  "short": "findall, sub & Grenzen",
+  "source": "sew.htl-villach.at · Jahr 3 · 3. Reguläre Ausdrücke – Die Funktionen des re-Moduls, findall, sub, E-Mail, Wann Regex die falsche Lösung ist, Lernergebnisse",
+  "theory": "\n<h3>Die Funktionen des re-Moduls</h3>\n<table class=\"ops\">\n<tr><td><code>re.search(p, text)</code></td><td>erstes Vorkommen an beliebiger Stelle</td><td>Match oder None</td></tr>\n<tr><td><code>re.fullmatch(p, text)</code></td><td>passt der <b>gesamte</b> Text?</td><td>Match oder None</td></tr>\n<tr><td><code>re.findall(p, text)</code></td><td><b>alle</b> Vorkommen</td><td>Liste von Strings/Tupeln</td></tr>\n<tr><td><code>re.finditer(p, text)</code></td><td>alle Vorkommen</td><td>Iterator von Match-Objekten</td></tr>\n<tr><td><code>re.sub(p, repl, text)</code></td><td>Vorkommen <b>ersetzen</b></td><td>neuer String</td></tr>\n<tr><td><code>re.split(p, text)</code></td><td>Text am Muster zerteilen</td><td>Liste</td></tr>\n</table>\n<p class=\"muted\"><code>re.match()</code> prüft nur am Textanfang und sorgt regelmäßig für Verwirrung – mit <code>search</code> und <code>fullmatch</code> ist alles klarer abgedeckt.</p>\n\n<h3>findall: alle Treffer einsammeln</h3>\n<div class=\"example\" data-lang=\"py\">import re\n\nlog = \"\"\"\n2026-09-15 08:03:12 INFO  render started: intro.mp4\n2026-09-15 08:41:55 ERROR out of memory: scene_04.mp4\n2026-09-15 09:12:31 INFO  render finished: outro.mp4\n2026-09-15 09:13:02 ERROR file not found: music.wav\n\"\"\"\n\nerrors = re.findall(r\"ERROR (.+)\", log)\nprint(errors)\nprint(re.findall(r\"(\\d{2}):(\\d{2}):\\d{2}\", log))</div>\n<ul>\n  <li><b>Keine Gruppe</b> → Liste der ganzen Treffer.</li>\n  <li><b>Genau eine Gruppe</b> → Liste der Gruppeninhalte.</li>\n  <li><b>Mehrere Gruppen</b> → Liste von <b>Tupeln</b>.</li>\n</ul>\n<p>Die Auswertung von <b>Logdateien</b> gehört zu den häufigsten Regex-Anwendungen (→ Aufgabe 07).</p>\n\n<h3>sub: ersetzen mit Rückgriff auf Gruppen</h3>\n<p>Im Ersatztext greift man mit <code>\\1</code>, <code>\\2</code> oder <code>\\g&lt;name&gt;</code> auf die Gruppen des jeweiligen Treffers zu. Datum von deutsch nach ISO in einer Zeile:</p>\n<div class=\"example\" data-lang=\"py\">import re\n\ntext = \"Abgabe: 01.10.2026, Präsentation: 15.10.2026\"\nresult = re.sub(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", r\"\\3-\\2-\\1\", text)\nprint(result)</div>\n<p class=\"tip\">💡 Auch Suchen &amp; Ersetzen in <b>VS Code</b> kann das: Regex-Modus mit dem Knopf <code>.*</code> aktivieren, im Ersetzen-Feld <code>$1</code> statt <code>\\1</code>.</p>\n\n<h3>Anwendungsfall E-Mail-Adresse</h3>\n<div class=\"example\" data-lang=\"py\">import re\n\npattern = r\"[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+\"\n\ndef is_email(text):\n    return re.fullmatch(pattern, text) is not None\n\nprint(is_email(\"ada.lovelace@htl-villach.at\"))\nprint(is_email(\"a@b\"))\nprint(is_email(\"@@@\"))</div>\n<p>Vor dem <code>@</code>: Wortzeichen, Punkt, Plus, Minus. Danach mindestens ein Domain-Teil und mindestens eine Punkt-Endung. Eine <b>vollständige</b> E-Mail-Prüfung per Regex ist praktisch nicht sinnvoll (der Standard RFC 5322 erlaubt viel mehr). Üblich: Grobstruktur prüfen, dann per <b>Bestätigungsmail</b> verifizieren.</p>\n\n<h3>Wann Regex die falsche Lösung ist</h3>\n<div class=\"grid2\">\n<div class=\"card\"><b>Einfache Fälle einfach lösen</b><br>Ob ein Name auf <code>.png</code> endet, prüft <code>name.endswith(\".png\")</code> kürzer, schneller und lesbarer. Auch <code>in</code>, <code>startswith</code>, <code>split</code>, <code>strip</code> reichen oft.</div>\n<div class=\"card\"><b>Verschachtelte Strukturen</b><br>HTML, XML, JSON erlauben beliebig tiefe Verschachtelung – Regex kann das <b>prinzipiell</b> nicht korrekt erfassen. Dafür gibt es <b>Parser</b> (für JSON das <code>json</code>-Modul, Kapitel 9).</div>\n<div class=\"card\"><b>Lesbarkeit hat Vorrang</b><br>Ein Muster, das eine Woche später niemand mehr versteht, ist ein Wartungsproblem. Abhilfe: benannte Gruppen, lange Muster in benannte Teilstrings zerlegen, Kommentar mit Zweck und zwei Beispielen.</div>\n</div>\n\n<h3>Lernergebnisse von Kapitel 3</h3>\n<table class=\"ops\">\n<tr><td><b>Nennen</b></td><td>Bausteine: Zeichenklassen, Quantoren, Anker, Gruppen, Alternativen</td></tr>\n<tr><td><b>Anwenden</b></td><td>Muster für Postleitzahl, Datum, Timecode, E-Mail, Log-Zeilen, Dateinamen formulieren und mit regex101 testen</td></tr>\n<tr><td><b>Anwenden</b></td><td><code>search</code>, <code>fullmatch</code>, <code>findall</code>, <code>sub</code></td></tr>\n<tr><td><b>Analysieren</b></td><td>Teilinformationen mit (benannten) Capture-Gruppen extrahieren</td></tr>\n<tr><td><b>Beurteilen</b></td><td>wann Regex passt – und wann String-Methoden oder ein Parser besser sind</td></tr>\n</table>\n",
+  "exercises": [
+   {
+    "id": "re4-a",
+    "type": "output",
+    "code": "import re\n\ntext = \"Preise: 3,50 Euro, 12 Euro und 0,99 Euro\"\nprint(re.findall(r\"\\d+\", text))\nprint(re.findall(r\"(\\d+),(\\d+)\", text))",
+    "lines": 2,
+    "explain": "Ohne Gruppe: alle Ziffernfolgen. Mit zwei Gruppen: Tupel – nur Preise mit Komma passen."
+   },
+   {
+    "id": "re4-b",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 06 C</span> <code>to_iso(text)</code>: formt mit <code>re.sub</code> und Gruppenreferenzen <b>alle</b> Datumsangaben <code>TT.MM.JJJJ</code> im Text nach <code>JJJJ-MM-TT</code> um.",
+    "starter": "import re\n\ndef to_iso(text):\n    ",
+    "hint": "return re.sub(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", r\"\\3-\\2-\\1\", text)",
+    "solution": "import re\n\ndef to_iso(text):\n    return re.sub(r\"(\\d{2})\\.(\\d{2})\\.(\\d{4})\", r\"\\3-\\2-\\1\", text)",
+    "tests": "assert to_iso(\"Abgabe: 01.10.2026, Präsentation: 15.10.2026\") == \"Abgabe: 2026-10-01, Präsentation: 2026-10-15\", f\"Ergebnis: {to_iso('Abgabe: 01.10.2026, Präsentation: 15.10.2026')!r}\"\nassert to_iso(\"kein Datum\") == \"kein Datum\", \"Ohne Datum bleibt der Text gleich.\"\nassert \"re.sub\" in _src, \"Bitte mit re.sub lösen.\""
+   },
+   {
+    "id": "re4-c",
+    "type": "py",
+    "task": "<code>extract_emails(text)</code>: liefert eine Liste <b>aller</b> E-Mail-Adressen im Text (Grobstruktur wie im Skriptum, Reihenfolge wie im Text).",
+    "starter": "import re\n\ndef extract_emails(text):\n    ",
+    "hint": "Achtung: findall mit einer Gruppe liefert nur die Gruppe! Entweder eine nicht-fangende Gruppe (?:…) verwenden oder [m.group() for m in re.finditer(…)].",
+    "solution": "import re\n\ndef extract_emails(text):\n    return re.findall(r\"[\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+\", text)",
+    "tests": "r = extract_emails(\"Kontakt: ada.lovelace@htl-villach.at oder bob+news@mail.example.com, nicht a@b!\")\nassert r == [\"ada.lovelace@htl-villach.at\", \"bob+news@mail.example.com\"], f\"Ergebnis: {r} – Tipp: findall mit Gruppe liefert nur den Gruppeninhalt.\"\nassert extract_emails(\"keine Mail\") == [], \"Ohne Treffer → [].\"",
+    "note": "Stolperfalle: Hat das Muster eine Gruppe, liefert findall nur deren Inhalt – nicht die ganze Adresse."
+   },
+   {
+    "id": "re4-d",
+    "type": "quiz",
+    "task": "Eine Kollegin will <b>HTML-Dateien</b> mit Regex auswerten. Was rätst du?",
+    "options": [
+     "Super Idee, Regex kann alles",
+     "Lieber einen Parser verwenden – HTML ist beliebig tief verschachtelt, das kann Regex prinzipiell nicht korrekt erfassen",
+     "Nur fullmatch verwenden",
+     "HTML vorher in Großbuchstaben umwandeln"
+    ],
+    "correct": 1,
+    "explain": "Für verschachtelte Formate (HTML, XML, JSON) gibt es Parser."
+   },
+   {
+    "id": "re4-e",
+    "type": "quiz",
+    "task": "Was ist die beste Lösung, um zu prüfen, ob ein Dateiname auf <code>.png</code> endet?",
+    "options": [
+     "re.search(r\"\\.png$\", name)",
+     "name.endswith(\".png\")",
+     "re.findall(r\"png\", name)",
+     "\".png\" in name"
+    ],
+    "correct": 1,
+    "explain": "Einfache Fälle einfach lösen: kürzer, schneller, lesbarer. \"in\" wäre falsch (findet auch png_logo.txt)."
    }
   ]
  },
@@ -1591,6 +1867,122 @@ window.SEW_LESSONS = [
     ],
     "correct": 2,
     "explain": "n! Anordnungen → 10! = 3 628 800. Die Laufzeit wächst entsprechend explosiv. binary_strings(n) liefert dagegen 2ⁿ Ergebnisse."
+   }
+  ]
+ },
+ {
+  "id": "auf-06",
+  "group": "Aufgaben",
+  "num": "06",
+  "title": "Aufgabe 06 – Musterjagd",
+  "short": "06 Musterjagd",
+  "source": "sew.htl-villach.at · Jahr 3 · Übungen – Aufgabe 06",
+  "theory": "\n<h3>Worum geht es?</h3>\n<p>Erste Schritte mit regulären Ausdrücken: fremde Muster entschlüsseln, eigene Muster für Alltagsformate entwickeln und Teilinformationen mit Gruppen extrahieren. Theorie: <a href=\"#re-start\">3.1</a>–<a href=\"#re-funktionen\">3.4</a>. Jedes Muster zuerst auf <b>regex101.com</b> (Flavor Python) entwickeln.</p>\n<table class=\"ops\">\n<tr><td><b>Teil A – Muster lesen</b></td><td><code>^\\d{4}$</code>, <code>[A-Z][a-z]+</code>, <code>\\d+([.,]\\d{1,2})?</code>, <code>^[ABC]\\d{3}[a-z]?$</code> – je ein Satz, ein Beispiel, ein Gegenbeispiel</td></tr>\n<tr><td><b>Teil B – Muster schreiben</b></td><td>Postleitzahl, Datum TT.MM.JJJJ, Uhrzeit HH:MM, Kennzeichen wie VI-123AB – je mit Testfunktion: 3 passende und 3 <b>bösartige</b> Gegenbeispiele (um eine Stelle daneben)</td></tr>\n<tr><td><b>Teil C – Extrahieren & Ersetzen</b></td><td>Termin zerlegen (nummeriert und benannt), Datumsangaben mit <code>re.sub</code> nach ISO umformen</td></tr>\n<tr><td><b>Teil D – Experte</b></td><td>Produktionsdateinamen <code>project_scene-take_camera_version.extension</code> zerlegen, <code>parse_filename</code>, Umbenennungsvorschau mit <code>re.sub</code></td></tr>\n</table>\n<p>Die Lektionen 3.2–3.4 enthalten schon Teil B (Uhrzeit, Kennzeichen, Datum) und Teil C. Hier sind die übrigen Teile.</p>\n<h3>Teil D: Ersetzungsfunktion bei re.sub</h3>\n<p>Statt eines Ersatztexts kann man <code>re.sub</code> eine <b>Funktion</b> übergeben. Sie bekommt das Match-Objekt und liefert den Ersatztext – damit kann man rechnen oder auffüllen:</p>\n<div class=\"example\" data-lang=\"py\">import re\n\ndef pad(m):\n    return m.group(1) + m.group(2).zfill(3)\n\nprint(re.sub(r\"(take)(\\d+)\", pad, \"take7, take12\"))</div>\n<h3>Wissenscheck</h3>\n<ul>\n<li>search vs. fullmatch – welches gehört zur Validierung?</li>\n<li>Worauf passt <code>ab+</code>, worauf <code>(ab)+</code>?</li>\n<li>Warum steht vor jedem Regex-String ein <code>r</code>?</li>\n<li>Was leisten <code>^</code> und <code>$</code>, was passiert ohne sie?</li>\n<li>Ein Kollege will HTML mit Regex auswerten – was rätst du?</li>\n</ul>\n",
+  "exercises": [
+   {
+    "id": "a06-a",
+    "type": "multi",
+    "task": "<span class=\"tag\">Teil A</span> Auf welche Texte passt <code>[A-Z][a-z]+</code> mit <code>re.fullmatch</code>?",
+    "options": [
+     "Villach",
+     "A",
+     "villach",
+     "Österreich"
+    ],
+    "correct": [
+     0
+    ],
+    "explain": "Ein Großbuchstabe und mindestens ein Kleinbuchstabe. „A“ hat keinen Kleinbuchstaben, Ö liegt nicht in [A-Z] (keine Umlaute!)."
+   },
+   {
+    "id": "a06-b",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil B</span> <code>is_postal_code(text)</code> (4 Ziffern, nicht mit 0 beginnend) <b>plus</b> eine Testfunktion <code>test_postal_code()</code> mit <code>assert</code>: mindestens 3 Strings, die passen müssen, und 3, die scheitern müssen. Ruf die Testfunktion am Ende auf.",
+    "starter": "import re\n\ndef is_postal_code(text):\n    \n\ndef test_postal_code():\n    \n\ntest_postal_code()",
+    "hint": "Bösartige Gegenbeispiele: \"0123\", \"40201\", \"402\", \"A-4020\", \" 4020\".",
+    "solution": "import re\n\ndef is_postal_code(text):\n    return re.fullmatch(r\"[1-9]\\d{3}\", text) is not None\n\ndef test_postal_code():\n    for ok in [\"4020\", \"9500\", \"1010\"]:\n        assert is_postal_code(ok)\n    for bad in [\"0123\", \"40201\", \"402\", \"A-4020\"]:\n        assert not is_postal_code(bad)\n\ntest_postal_code()",
+    "tests": "for t in [\"4020\", \"9500\", \"1010\", \"9999\"]:\n    assert is_postal_code(t), f\"{t} ist gültig.\"\nfor t in [\"0123\", \"40201\", \"402\", \"A-4020\", \"40 20\", \"4020 \"]:\n    assert not is_postal_code(t), f\"{t!r} ist ungültig.\"\nimport ast as _a\nf = _func(\"test_postal_code\")\nn = sum(isinstance(x, _a.Assert) for x in _a.walk(f))\nassert n >= 1, \"test_postal_code soll assert verwenden.\""
+   },
+   {
+    "id": "a06-c",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil D – Experte</span> <code>parse_filename(name)</code> für <code>project_scene-take_camera_version.extension</code>, z. B. <code>imagefilm_04-7_B_v03.mp4</code>. Regeln: Projekt aus <b>Kleinbuchstaben und Ziffern</b>, Szene <b>zweistellig</b>, Take <b>1–2-stellig</b>, Kamera <b>ein Großbuchstabe</b>, Version <code>v</code> + zwei Ziffern (<b>optional</b>), Endung <code>mp4</code>, <code>mov</code> oder <code>wav</code>. Liefert ein Dictionary (<code>project, scene, take, camera, version, extension</code> – Version <code>None</code>, wenn sie fehlt) oder <code>None</code>.",
+    "starter": "import re\n\ndef parse_filename(name):\n    ",
+    "hint": "r\"(?P&lt;project&gt;[a-z0-9]+)_(?P&lt;scene&gt;\\d{2})-(?P&lt;take&gt;\\d{1,2})_(?P&lt;camera&gt;[A-Z])(?:_(?P&lt;version&gt;v\\d{2}))?\\.(?P&lt;extension&gt;mp4|mov|wav)\" – fullmatch, dann m.groupdict()",
+    "solution": "import re\n\nPATTERN = (\n    r\"(?P<project>[a-z0-9]+)\"         # project: lowercase letters and digits\n    r\"_(?P<scene>\\d{2})\"              # scene: exactly two digits\n    r\"-(?P<take>\\d{1,2})\"             # take: one or two digits\n    r\"_(?P<camera>[A-Z])\"             # camera: one capital letter\n    r\"(?:_(?P<version>v\\d{2}))?\"      # optional version v + two digits\n    r\"\\.(?P<extension>mp4|mov|wav)\"   # allowed extensions\n)\n\ndef parse_filename(name):\n    m = re.fullmatch(PATTERN, name)\n    if m is None:\n        return None\n    return m.groupdict()",
+    "tests": "r = parse_filename(\"imagefilm_04-7_B_v03.mp4\")\nassert r == {\"project\": \"imagefilm\", \"scene\": \"04\", \"take\": \"7\", \"camera\": \"B\", \"version\": \"v03\", \"extension\": \"mp4\"}, f\"Ergebnis: {r}\"\nr2 = parse_filename(\"doku2_12-15_A.wav\")\nassert r2 and r2[\"version\"] is None and r2[\"take\"] == \"15\", f\"Rohmaterial ohne Version: {r2}\"\nfor bad in [\"imagefilm_004-7_B_v03.mp4\", \"imagefilm_04-7_B_v03.avi\", \"Imagefilm_04-7_B.mp4\", \"imagefilm_04-123_B.mp4\", \"imagefilm_04-7_b.mp4\", \"imagefilm_04-7_B_v3.mp4\"]:\n    assert parse_filename(bad) is None, f\"{bad} ist ungültig → None.\""
+   },
+   {
+    "id": "a06-d",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil D – Experte</span> <code>rename_preview(name)</code>: aus <code>imagefilm_04-7_B_v03.mp4</code> wird <code>S04T07_B_imagefilm.mp4</code> (Take auf zwei Stellen aufgefüllt, Version entfällt). Verwende <code>re.sub</code> mit einer <b>Ersetzungsfunktion</b>.",
+    "starter": "import re\n\ndef rename_preview(name):\n    ",
+    "hint": "def repl(m): return f\"S{m.group('scene')}T{m.group('take').zfill(2)}_{m.group('camera')}_{m.group('project')}.{m.group('extension')}\" – dann re.sub(PATTERN, repl, name)",
+    "solution": "import re\n\nPATTERN = r\"(?P<project>[a-z0-9]+)_(?P<scene>\\d{2})-(?P<take>\\d{1,2})_(?P<camera>[A-Z])(?:_(?P<version>v\\d{2}))?\\.(?P<extension>mp4|mov|wav)\"\n\ndef rename_preview(name):\n    def repl(m):\n        take = m.group(\"take\").zfill(2)\n        return f\"S{m.group('scene')}T{take}_{m.group('camera')}_{m.group('project')}.{m.group('extension')}\"\n    return re.sub(PATTERN, repl, name)",
+    "tests": "assert rename_preview(\"imagefilm_04-7_B_v03.mp4\") == \"S04T07_B_imagefilm.mp4\", f\"Ergebnis: {rename_preview('imagefilm_04-7_B_v03.mp4')!r}\"\nassert rename_preview(\"doku_12-15_A.wav\") == \"S12T15_A_doku.wav\", f\"Ergebnis: {rename_preview('doku_12-15_A.wav')!r}\"\nassert \"re.sub\" in _src, \"Bitte re.sub verwenden.\""
+   },
+   {
+    "id": "a06-e",
+    "type": "reflect",
+    "task": "<span class=\"tag\">Teil D</span> Welche Prüfungen dieses Dateinamen-Formats kann die Regex leisten – und welche (z. B. „Take 7 existiert wirklich im Projekt“) grundsätzlich nicht? Wo gehört die zweite Sorte hin?",
+    "sample": "Die Regex prüft nur die Form: ob die Bestandteile in der richtigen Reihenfolge stehen, die richtige Länge haben und nur erlaubte Zeichen bzw. Endungen enthalten. Ob es Szene 04, Take 7 oder Kamera B in diesem Projekt wirklich gibt, ist eine inhaltliche Frage, die nur mit zusätzlichen Daten beantwortet werden kann (z. B. Drehplan, Datenbank, Projektliste). Diese Prüfungen gehören in den Programmcode bzw. die Datenhaltung, nicht ins Muster."
+   }
+  ]
+ },
+ {
+  "id": "auf-07",
+  "group": "Aufgaben",
+  "num": "07",
+  "title": "Aufgabe 07 – Logdatei-Detektiv",
+  "short": "07 Logdatei-Detektiv",
+  "source": "sew.htl-villach.at · Jahr 3 · Übungen – Aufgabe 07",
+  "theory": "\n<h3>Worum geht es?</h3>\n<p>Regex im Ernstfall: Die Logdatei eines (fiktiven) Schulservers wird ausgewertet. Im Unterricht hat <code>server.log</code> rund 500 Zeilen; hier üben wir mit einer <b>kleinen Beispiel-Logdatei</b> im selben Format (selbst erstellt, nicht die Originaldatei).</p>\n<pre class=\"syntax\">2026-03-14 09:31:02 LOGIN user=amuster ip=10.0.3.17 status=OK</pre>\n<p>Ereignisse: <code>LOGIN</code>, <code>LOGOUT</code>, <code>ERROR</code> · Status: <code>OK</code> / <code>FAIL</code>. <b>Achtung:</b> Die Datei enthält auch Zeilen, die dem Format <b>nicht</b> entsprechen.</p>\n<h3>Unsere Beispiel-Logdatei</h3>\n<pre class=\"syntax\">2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK</pre>\n<p>In den Übungen steht sie als Variable <code>LOG</code> bereit; <code>LOG.split(\"\\n\")</code> liefert die Zeilen.</p>\n<table class=\"ops\">\n<tr><td><b>Teil A – Sichtung</b></td><td>Zeilen zählen; mit <code>in</code> zählen, wie viele Zeilen <code>FAIL</code> enthalten (Kontrollzahl); erste fünf ERROR-Zeilen</td></tr>\n<tr><td><b>Teil B – Parsen</b></td><td>Muster mit benannten Gruppen <code>date, time, event, user, ip, status</code>; <code>parse_line(line)</code> → Dictionary oder <code>None</code>; ungültige Zeilen zählen, ohne Absturz</td></tr>\n<tr><td><b>Teil C – Ermittlungen</b></td><td>fehlgeschlagene Logins; Top-3-Benutzer mit Fehlversuchen; Stunde mit den meisten Fehlversuchen; IPs mit Fehlversuchen für mehr als einen Benutzer</td></tr>\n<tr><td><b>Teil D – Bericht</b></td><td><code>write_report(records, path)</code>, Abschnitt „Verdachtslage“, Härtetest mit fehlerhaften Zeilen, „Indiz gegen Beweis“</td></tr>\n</table>\n<h3>Dictionary nach Werten sortieren</h3>\n<div class=\"example\" data-lang=\"py\">counts = {\"amuster\": 2, \"bhuber\": 3, \"cmaier\": 1}\nranking = sorted(counts.items(), key=lambda item: item[1], reverse=True)\nprint(ranking)\nprint(ranking[:2])</div>\n<h3>Wissenscheck</h3>\n<ul>\n<li>Warum ist ein Muster mit benannten Gruppen dem Zerschneiden mit <code>split(\" \")</code> überlegen?</li>\n<li>Was soll ein Parser mit Zeilen tun, die dem Format nicht entsprechen – und was spricht gegen stilles Verwerfen?</li>\n<li>Wie sortiert man ein Dictionary mit Zählern nach den größten Werten?</li>\n<li>Zwei Methoden liefern zwei verschiedene Zahlen (Teil A vs. Teil C) – welcher traust du mehr?</li>\n</ul>\n",
+  "exercises": [
+   {
+    "id": "a07-a",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil B</span> <code>parse_line(line)</code>: zerlegt eine Logzeile mit <b>benannten Gruppen</b> in ein Dictionary mit <code>date, time, event, user, ip, status</code>. Zeilen, die nicht dem Format entsprechen (auch leerer <code>user=</code>), → <code>None</code>.",
+    "starter": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\ndef parse_line(line):\n    \n\nfor line in LOG.split(\"\\n\"):\n    print(parse_line(line))",
+    "hint": "r\"(?P&lt;date&gt;\\d{4}-\\d{2}-\\d{2}) (?P&lt;time&gt;\\d{2}:\\d{2}:\\d{2}) (?P&lt;event&gt;LOGIN|LOGOUT|ERROR) user=(?P&lt;user&gt;\\w+) ip=(?P&lt;ip&gt;\\d{1,3}(?:\\.\\d{1,3}){3}) status=(?P&lt;status&gt;OK|FAIL)\" mit fullmatch",
+    "solution": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\nLINE = re.compile(\n    r\"(?P<date>\\d{4}-\\d{2}-\\d{2}) \"\n    r\"(?P<time>\\d{2}:\\d{2}:\\d{2}) \"\n    r\"(?P<event>LOGIN|LOGOUT|ERROR) \"\n    r\"user=(?P<user>\\w+) \"\n    r\"ip=(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) \"\n    r\"status=(?P<status>OK|FAIL)\"\n)\n\ndef parse_line(line):\n    m = LINE.fullmatch(line.strip())\n    if m is None:\n        return None\n    return m.groupdict()",
+    "tests": "r = parse_line(\"2026-03-14 09:31:02 LOGIN user=amuster ip=10.0.3.17 status=OK\")\nassert r == {\"date\": \"2026-03-14\", \"time\": \"09:31:02\", \"event\": \"LOGIN\", \"user\": \"amuster\", \"ip\": \"10.0.3.17\", \"status\": \"OK\"}, f\"Ergebnis: {r}\"\nfor bad in [\"### server restarted ###\", \"2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\", \"2026-03-14 09:31 LOGIN user=x ip=10.0.3.17 status=OK\", \"2026-03-14 09:31:02 LOGIN user=x ip=10.0.3.17 status=MAYBE\", \"\"]:\n    assert parse_line(bad) is None, f\"{bad!r} ist ungültig → None.\"\nvalid = [p for p in (parse_line(l) for l in LOG.split(\"\\n\")) if p]\nassert len(valid) == 11, f\"In LOG sind 11 gültige Zeilen, gefunden: {len(valid)}.\""
+   },
+   {
+    "id": "a07-b",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil C</span> <code>top_failures(records, n=3)</code>: bekommt die Liste der geparsten Dictionaries und liefert die <b>n Benutzer mit den meisten fehlgeschlagenen Logins</b> (<code>LOGIN</code> + <code>FAIL</code>) als Liste von Tupeln <code>(user, anzahl)</code>, absteigend sortiert (bei Gleichstand alphabetisch).",
+    "starter": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\nLINE = re.compile(r\"(?P<date>\\d{4}-\\d{2}-\\d{2}) (?P<time>\\d{2}:\\d{2}:\\d{2}) (?P<event>LOGIN|LOGOUT|ERROR) user=(?P<user>\\w+) ip=(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) status=(?P<status>OK|FAIL)\")\nrecords = [m.groupdict() for m in (LINE.fullmatch(l) for l in LOG.split(\"\\n\")) if m]\n\ndef top_failures(records, n=3):\n    \n\nprint(top_failures(records))",
+    "hint": "counts = {}; für jedes r mit event == \"LOGIN\" und status == \"FAIL\": counts[user] = counts.get(user, 0) + 1. Dann sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:n]",
+    "solution": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\nLINE = re.compile(r\"(?P<date>\\d{4}-\\d{2}-\\d{2}) (?P<time>\\d{2}:\\d{2}:\\d{2}) (?P<event>LOGIN|LOGOUT|ERROR) user=(?P<user>\\w+) ip=(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) status=(?P<status>OK|FAIL)\")\nrecords = [m.groupdict() for m in (LINE.fullmatch(l) for l in LOG.split(\"\\n\")) if m]\n\ndef top_failures(records, n=3):\n    counts = {}\n    for r in records:\n        if r[\"event\"] == \"LOGIN\" and r[\"status\"] == \"FAIL\":\n            counts[r[\"user\"]] = counts.get(r[\"user\"], 0) + 1\n    ranking = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))\n    return ranking[:n]",
+    "tests": "res = [tuple(x) for x in top_failures(records)]\nassert res == [(\"bhuber\", 2), (\"amuster\", 1), (\"cmaier\", 1)], f\"Ergebnis: {res} – erwartet bhuber 2, dann amuster 1, cmaier 1 (ERROR-Zeilen zählen nicht!).\"\nassert [tuple(x) for x in top_failures(records, 1)] == [(\"bhuber\", 2)], \"n=1 soll nur den ersten liefern.\""
+   },
+   {
+    "id": "a07-c",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil C</span> <code>suspicious_ips(records)</code>: liefert eine <b>sortierte</b> Liste aller IP-Adressen, von denen <b>fehlgeschlagene Logins für mehr als einen Benutzer</b> kamen.",
+    "starter": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\nLINE = re.compile(r\"(?P<date>\\d{4}-\\d{2}-\\d{2}) (?P<time>\\d{2}:\\d{2}:\\d{2}) (?P<event>LOGIN|LOGOUT|ERROR) user=(?P<user>\\w+) ip=(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) status=(?P<status>OK|FAIL)\")\nrecords = [m.groupdict() for m in (LINE.fullmatch(l) for l in LOG.split(\"\\n\")) if m]\n\ndef suspicious_ips(records):\n    \n\nprint(suspicious_ips(records))",
+    "hint": "users_per_ip = {} mit Mengen: users_per_ip.setdefault(ip, set()).add(user). Dann sorted(ip for ip, users in users_per_ip.items() if len(users) > 1)",
+    "solution": "LOG = \"\"\"2026-03-14 08:01:12 LOGIN user=amuster ip=10.0.3.17 status=OK\n2026-03-14 08:05:40 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 08:05:58 LOGIN user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 09:12:03 ERROR user=amuster ip=10.0.3.17 status=FAIL\n2026-03-14 09:30:11 LOGIN user=cmaier ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:15 LOGIN user=dkoller ip=10.0.9.99 status=FAIL\n2026-03-14 09:30:19 LOGIN user=amuster ip=10.0.9.99 status=FAIL\n### server restarted ###\n2026-03-14 09:45:00 LOGOUT user=bhuber ip=10.0.3.22 status=OK\n2026-03-14 10:02:44 LOGIN user=cmaier ip=10.0.4.5 status=OK\n2026-03-14 10:15:30 LOGIN user=bhuber ip=10.0.3.22 status=FAIL\n2026-03-14 11:00:00 LOGIN user= ip=10.0.3.30 status=OK\n2026-03-14 11:20:09 LOGOUT user=cmaier ip=10.0.4.5 status=OK\"\"\"\n\nimport re\n\nLINE = re.compile(r\"(?P<date>\\d{4}-\\d{2}-\\d{2}) (?P<time>\\d{2}:\\d{2}:\\d{2}) (?P<event>LOGIN|LOGOUT|ERROR) user=(?P<user>\\w+) ip=(?P<ip>\\d{1,3}(?:\\.\\d{1,3}){3}) status=(?P<status>OK|FAIL)\")\nrecords = [m.groupdict() for m in (LINE.fullmatch(l) for l in LOG.split(\"\\n\")) if m]\n\ndef suspicious_ips(records):\n    users_per_ip = {}\n    for r in records:\n        if r[\"event\"] == \"LOGIN\" and r[\"status\"] == \"FAIL\":\n            users_per_ip.setdefault(r[\"ip\"], set()).add(r[\"user\"])\n    return sorted(ip for ip, users in users_per_ip.items() if len(users) > 1)",
+    "tests": "assert list(suspicious_ips(records)) == [\"10.0.9.99\"], f\"Ergebnis: {suspicious_ips(records)} – 10.0.9.99 hat Fehlversuche für 3 Benutzer.\"\nextra = records + [{\"date\": \"x\", \"time\": \"12:00:00\", \"event\": \"LOGIN\", \"user\": \"zz\", \"ip\": \"10.0.3.22\", \"status\": \"FAIL\"}]\nassert list(suspicious_ips(extra)) == [\"10.0.3.22\", \"10.0.9.99\"], \"Mit einem zweiten Benutzer auf 10.0.3.22 muss auch diese IP erscheinen (sortiert).\""
+   },
+   {
+    "id": "a07-d",
+    "type": "quiz",
+    "task": "Mit <code>\"FAIL\" in line</code> zählst du 6 Zeilen, mit dem Parser nur 5 fehlgeschlagene <b>Logins</b>. Welcher Zahl traust du für „fehlgeschlagene Logins“ mehr?",
+    "options": [
+     "Der Zahl mit in – sie ist einfacher",
+     "Der Parser-Zahl: in zählt auch ERROR-Zeilen mit FAIL und kaputte Zeilen; der Parser prüft Ereignis UND Status gezielt",
+     "Beiden gleich",
+     "Keiner"
+    ],
+    "correct": 1,
+    "explain": "Die Abweichung erklärt sich durch ERROR-Zeilen mit status=FAIL. Die einfache Zählung ist eine gute Kontrollzahl, aber nicht präzise."
+   },
+   {
+    "id": "a07-e",
+    "type": "reflect",
+    "task": "<span class=\"tag\">Teil D</span> Welche Aussagen erlaubt diese Analyse – und warum wäre „Benutzer X wurde gehackt“ als Schlussfolgerung unzulässig? (Stichwort: Indiz gegen Beweis)",
+    "sample": "Die Analyse zeigt Muster: z. B. viele Fehlversuche in kurzer Zeit von einer IP für mehrere Benutzer – das ist ein Indiz für einen Angriffsversuch (Passwort-Raten). Ob ein Konto tatsächlich übernommen wurde, zeigt das Log nicht: ein erfolgreicher Login kann vom echten Benutzer stammen, IPs können geteilt sein (Schul-WLAN), und das Log kann unvollständig sein. „Gehackt“ wäre eine Behauptung ohne Beweis – man kann nur einen begründeten Verdacht formulieren, der weiter geprüft werden muss."
    }
   ]
  },
