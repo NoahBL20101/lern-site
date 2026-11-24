@@ -183,6 +183,15 @@ pre.tree{line-height:1.45}
 .hanoi .peg::before{content:'';position:absolute;bottom:0;top:6px;width:4px;background:var(--line);border-radius:2px;z-index:0}
 .hanoi .peg span{height:16px;background:var(--accent2);border-radius:5px;z-index:1}
 .hanoi .peg b{position:absolute;bottom:-24px;font-size:13px;color:var(--muted)}
+.nav li.grp .grp-btn{display:flex;align-items:center;gap:6px;width:100%;border:none;background:transparent;padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;text-align:left;cursor:pointer}
+.nav li.grp.single .grp-btn{cursor:default}
+.nav li.grp .grp-btn:hover .gname{color:var(--text)}
+.nav li.grp .arr{display:inline-block;width:12px;transition:transform .15s;font-size:11px}
+.nav li.grp.open .arr{transform:rotate(90deg)}
+.nav li.grp .gname{flex:1}
+.nav li.grp .meta{font-family:var(--mono);text-transform:none;letter-spacing:0;font-weight:400}
+.nav li.hid{display:none}
+.nav li.ingrp a{padding-left:16px}
 .nav li.grp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px;font-weight:600}
 .nav .num.wide{font-size:10.5px}
 h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
@@ -495,23 +504,39 @@ function metaLine(res, ms){ const n = res.values.length; return `<div class="met
 
 /* ---------- navigation ---------- */
 function lessonStats(l){ const n = l.exercises.length; const d = l.exercises.filter(e => store.done[e.id]).length; return {n, d}; }
+let navOpen = {};
+try { navOpen = JSON.parse(localStorage.getItem('nav-open')) || {}; } catch(e) {}
+function isGroupOpen(g, route){
+  const k = SUBJ + '|' + g;
+  if (k in navOpen) return navOpen[k];
+  return !!(route && route.lesson && route.lesson.group === g);   // default: collapsed, except the group of the open lesson
+}
 function renderNav(){
   const route = currentRoute();
   const home = SUBJ === 'insy' ? 'start' : SUBJ, play = SUBJ === 'sew' ? 'py-spielwiese' : SUBJ === 'insy' ? 'spielwiese' : null;
   let h = '<li><a href="#' + home + '" class="' + (route.name==='start'?'active':'') + '"><span class="num">⌂</span>Start</a></li>';
   let grp = null;
+  const groups = [...new Set(L.map(l => l.group).filter(Boolean))];
   L.forEach((l, i) => {
     const s = lessonStats(l);
-    if (l.group && l.group !== grp) { grp = l.group; h += `<li class="grp">${esc(grp)}</li>`; }
-    h += `<li class="${s.d===s.n?'done':''}"><a href="#${l.id}" class="${route.lesson===l?'active':''}"><span class="num${l.num && l.num.length > 2 ? ' wide' : ''}">${s.d===s.n?'✓':(l.num || i+1)}</span>${esc(l.short)}<span class="meta">${s.d}/${s.n}</span></a></li>`;
+    if (l.group && l.group !== grp) {
+      grp = l.group;
+      const ls = L.filter(x => x.group === grp), gs = ls.reduce((a, x) => { const t = lessonStats(x); return [a[0] + t.d, a[1] + t.n]; }, [0, 0]);
+      const single = ls.length === 1;
+      const open = single || isGroupOpen(grp, route);
+      h += `<li class="grp${single ? ' single' : ''}${open ? ' open' : ''}" data-g="${esc(grp)}"><button class="grp-btn" ${single ? 'tabindex="-1"' : ''} aria-expanded="${open}"><span class="arr">${single ? '' : '▸'}</span><span class="gname">${esc(grp)}</span><span class="meta">${gs[0]}/${gs[1]}</span></button></li>`;
+    }
+    const hidden = l.group && L.filter(x => x.group === l.group).length > 1 && !isGroupOpen(l.group, route);
+    h += `<li class="${s.d===s.n?'done':''}${hidden ? ' hid' : ''}${l.group ? ' ingrp' : ''}"><a href="#${l.id}" class="${route.lesson===l?'active':''}"><span class="num${l.num && l.num.length > 2 ? ' wide' : ''}">${s.d===s.n?'✓':(l.num || i+1)}</span>${esc(l.short)}<span class="meta">${s.d}/${s.n}</span></a></li>`;
   });
   if (play) h += '<li class="sep"></li><li><a href="#' + play + '" class="' + (route.name==='play'?'active':'') + '"><span class="num">⌘</span>Freies Üben</a></li>';
   $('#nav').innerHTML = h;
+  $('#nav').querySelectorAll('li.grp:not(.single) .grp-btn').forEach(b => b.onclick = () => { const g = b.parentElement.dataset.g; navOpen[SUBJ + '|' + g] = !isGroupOpen(g, currentRoute()); try { localStorage.setItem('nav-open', JSON.stringify(navOpen)); } catch(e) {} renderNav(); });
   const all = L.flatMap(l => l.exercises), done = all.filter(e => store.done[e.id]).length;
   $('#overallBar').style.width = (100 * done / Math.max(1, all.length)) + '%';
   $('#overallLabel').textContent = done + ' von ' + all.length + ' Übungen gelöst';
   $('#subjInsy').classList.toggle('on', SUBJ === 'insy'); $('#subjSew').classList.toggle('on', SUBJ === 'sew'); $('#subjItp').classList.toggle('on', SUBJ === 'itp');
-  $('#brandSub').textContent = SUBJ === 'sew' ? 'SEW · 3. Jahrgang · Python bis Rekursion' : SUBJ === 'itp' ? 'ITP · 3. Jahrgang · Projektmanagement' : 'INSY · 3. Jahrgang · SELECT bis JOIN';
+  $('#brandSub').textContent = SUBJ === 'sew' ? 'SEW · 3. Jahrgang · Python, Rekursion & Klassen' : SUBJ === 'itp' ? 'ITP · 3. Jahrgang · Projektmanagement' : 'INSY · 3. Jahrgang · SELECT bis JOIN';
   $('#brandTitle').textContent = SUBJ === 'sew' ? 'Python lernen' : SUBJ === 'itp' ? 'Projektmanagement' : 'SQL lernen';
 }
 function currentRoute(){
@@ -530,6 +555,7 @@ function currentRoute(){
 }
 function route(){
   const r = currentRoute();
+  if (r.lesson && r.lesson.group && navOpen[SUBJ + '|' + r.lesson.group] === false) { navOpen[SUBJ + '|' + r.lesson.group] = true; try { localStorage.setItem('nav-open', JSON.stringify(navOpen)); } catch(e) {} }
   $('#side').classList.remove('open');
   if (r.name === 'lesson') renderLesson(r.lesson, r.tab);
   else if (r.name === 'play') (SUBJ === 'sew' ? renderPyPlay : renderPlay)();
@@ -565,8 +591,8 @@ function renderSewStart(){
     <div><b>2 · Üben</b>Quizfragen (eine oder mehrere richtig), Reihenfolgen ordnen und offene Fragen mit Musterantwort.</div>
     <div><b>3 · Wiederholen</b>Am Ende die Test-Wiederholung mit allen wichtigen Punkten auf einen Blick.</div>
   </div>
-` : `<div class="crumbs">SEW · Softwareentwicklung</div><h2 class="title">Python & Rekursion – Schritt für Schritt</h2>
-  <p class="source">Aufgebaut wie sew.htl-villach.at · Jahr 3: Kapitel 1 „Einführung in Python“, Kapitel 2 „Rekursion“ und die Aufgaben 01–05 (Teststoff)</p>
+` : `<div class="crumbs">SEW · Softwareentwicklung</div><h2 class="title">Python, Rekursion & Klassen – Schritt für Schritt</h2>
+  <p class="source">Aufgebaut wie sew.htl-villach.at · Jahr 3: Kapitel 1 „Einführung in Python“, Kapitel 2 „Rekursion“, Kapitel 4 „Klassen in Python“ und die passenden Aufgaben</p>
   <div class="how">
     <div><b>1 · Theorie lesen</b>Jedes Kapitel erklärt den Stoff aus dem Skriptum. Alle Code-Beispiele kannst du direkt ausführen.</div>
     <div><b>2 · Selbst programmieren</b>Du schreibst echten Python-Code – er läuft direkt im Browser (Internet nötig, Python lädt beim ersten Mal ein paar Sekunden).</div>

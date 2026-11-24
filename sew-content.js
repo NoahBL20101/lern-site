@@ -1,4 +1,4 @@
-// SEW 3. Jahrgang – Struktur wie sew.htl-villach.at: Kapitel 1, Kapitel 2, Aufgaben 01–05, Test-Wiederholung
+// SEW 3. Jahrgang – Struktur wie sew.htl-villach.at: Kapitel 1, 2, 4, Aufgaben, Probetest, Test
 window.SEW_LESSONS = [
  {
   "id": "py-start",
@@ -772,6 +772,345 @@ window.SEW_LESSONS = [
   ]
  },
  {
+  "id": "kl-objekt",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.1",
+  "title": "Klasse, Objekt & self",
+  "short": "Klasse & Objekt",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Einleitung, Klasse und Objekt, self",
+  "theory": "\n<h3>Warum Klassen?</h3>\n<p>Mit Funktionen, Listen und Dictionaries kommt man weit. Sobald aber <b>zusammengehörige Daten</b> und die <b>passenden Operationen</b> gemeinsam verwaltet werden sollen, stößt man an Grenzen. Ein Bankkonto besteht aus <b>Inhaber und Kontostand</b>, und es gibt klar definierte Operationen darauf (einzahlen, abheben, Stand abfragen), die <b>Regeln</b> einhalten müssen. Genau dafür gibt es <b>Klassen</b> – das Kernstück der objektorientierten Programmierung (OOP).</p>\n<p>Alle folgenden Kapitel bauen darauf auf: Vererbung und Polymorphismus sind die Schwerpunkte des Jahres.</p>\n\n<h3>Klasse und Objekt</h3>\n<div class=\"grid2\">\n  <div class=\"card hl\"><b>Klasse</b> = Bauplan<br>legt fest, welche <b>Daten (Attribute)</b> und welche <b>Operationen (Methoden)</b> eine Art von Objekt hat.<br><span class=\"muted\">z. B. <code>Account</code></span></div>\n  <div class=\"card hl\"><b>Objekt</b> (= <b>Instanz</b>)<br>ein konkretes Exemplar nach diesem Bauplan, mit <b>eigenen Werten</b>.<br><span class=\"muted\">z. B. das Konto von Ada mit 100 €</span></div>\n</div>\n<p>Von einer Klasse können <b>beliebig viele</b> Objekte existieren – jedes mit eigenen Attributwerten.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        if amount > 0:\n            self.balance += amount\n\naccount_ada = Account(\"Ada\", 100)\naccount_bob = Account(\"Bob\")\n\naccount_ada.deposit(50)\nprint(account_ada.balance)\nprint(account_bob.balance)</div>\n<table class=\"ops\">\n<tr><td><code>class Account:</code></td><td>eröffnet die Klassendefinition; alles Eingerückte gehört dazu. Klassennamen in <b>PascalCase</b>.</td></tr>\n<tr><td><code>__init__</code></td><td>der <b>Konstruktor</b> („dunder init“, von <i>double underscore</i>). Läuft <b>automatisch</b>, wenn ein Objekt erzeugt wird, und legt dessen Attribute an.</td></tr>\n<tr><td><code>Account(\"Ada\", 100)</code></td><td>Objekt erzeugen: die Klasse wird <b>wie eine Funktion aufgerufen</b>. Ein Schlüsselwort <code>new</code> gibt es nicht.</td></tr>\n<tr><td><code>self.owner = owner</code></td><td>Attribute werden <b>nicht vorab deklariert</b> – sie entstehen durch die erste Zuweisung in <code>__init__</code>.</td></tr>\n<tr><td><code>account_ada.deposit(50)</code></td><td>Methoden werden mit der <b>Punktnotation</b> auf einem Objekt aufgerufen.</td></tr>\n</table>\n\n<h3>self – der Bezug auf das eigene Objekt</h3>\n<p>Jede Methode hat als <b>ersten Parameter <code>self</code></b>: das Objekt, auf dem die Methode aufgerufen wurde. Python übergibt es <b>automatisch</b>:</p>\n<pre class=\"syntax\">account_ada.deposit(50)\n# is internally equivalent to:\nAccount.deposit(account_ada, 50)</pre>\n<p>Beide Zeilen sind gleichwertig – die zweite zeigt den Mechanismus. Daraus folgen <b>zwei Regeln</b>, deren Verletzung die häufigsten Anfängerfehler verursacht:</p>\n<div class=\"grid2\">\n<div class=\"card\"><b>① Jede Methode beginnt mit <code>self</code></b><br>Fehlt der Parameter, meldet Python beim Aufruf:<br><code>deposit() takes 1 positional argument but 2 were given</code><br>Übersetzt: <b><code>self</code> wurde in der Definition vergessen.</b></div>\n<div class=\"card\"><b>② Attributzugriff läuft über <code>self</code></b><br>In einer Methode ist <code>balance</code> eine gewöhnliche <b>lokale Variable</b>; das Attribut heißt <code>self.balance</code>. Wer <code>self.</code> weglässt, ändert unbemerkt nur eine lokale Variable – das Objekt bleibt unverändert.</div>\n</div>\n<p>Probier beide Fehler aus:</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner):\n        self.owner = owner\n        self.balance = 0\n\n    def deposit(amount):            # self forgotten!\n        self.balance += amount\n\nacc = Account(\"Ada\")\nacc.deposit(50)</div>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner):\n        self.owner = owner\n        self.balance = 0\n\n    def deposit(self, amount):\n        balance = self.balance + amount     # local variable only!\n\nacc = Account(\"Ada\")\nacc.deposit(50)\nprint(acc.balance)</div>\n",
+  "exercises": [
+   {
+    "id": "k4-1a",
+    "type": "quiz",
+    "task": "Was ist der Unterschied zwischen <b>Klasse</b> und <b>Objekt</b>?",
+    "options": [
+     "Es gibt keinen",
+     "Die Klasse ist der Bauplan (Attribute + Methoden), das Objekt ein konkretes Exemplar mit eigenen Werten",
+     "Ein Objekt ist ein Bauplan für Klassen",
+     "Klassen gibt es nur einmal, Objekte nur einmal"
+    ],
+    "correct": 1,
+    "explain": "Von einer Klasse kann es beliebig viele Objekte (Instanzen) geben."
+   },
+   {
+    "id": "k4-1b",
+    "type": "output",
+    "code": "class Counter:\n    def __init__(self, start=0):\n        self.value = start\n\n    def increment(self):\n        self.value += 1\n\na = Counter()\nb = Counter(10)\na.increment()\na.increment()\nb.increment()\nprint(a.value, b.value)",
+    "lines": 1,
+    "explain": "Jedes Objekt hat sein eigenes value: a startet bei 0 (+2), b bei 10 (+1)."
+   },
+   {
+    "id": "k4-1c",
+    "type": "quiz",
+    "task": "Was bedeutet die Fehlermeldung <code>deposit() takes 1 positional argument but 2 were given</code>?",
+    "options": [
+     "Man hat beim Aufruf zu viele Zahlen übergeben",
+     "In der Methodendefinition wurde self vergessen – Python übergibt das Objekt automatisch als zusätzliches Argument",
+     "Die Klasse hat keinen Konstruktor",
+     "deposit darf nur einmal aufgerufen werden"
+    ],
+    "correct": 1,
+    "explain": "account.deposit(50) wird zu Account.deposit(account, 50) – zwei Argumente, aber die Definition erwartet nur eines."
+   },
+   {
+    "id": "k4-1d",
+    "type": "output",
+    "task": "Was gibt der Code aus? (Achtung auf <code>self</code>!)",
+    "code": "class Box:\n    def __init__(self):\n        self.items = 0\n\n    def add(self):\n        items = self.items + 1\n\nb = Box()\nb.add()\nb.add()\nprint(b.items)",
+    "lines": 1,
+    "explain": "items ohne self. ist nur eine lokale Variable – das Attribut bleibt 0."
+   },
+   {
+    "id": "k4-1e",
+    "type": "py",
+    "task": "Schreib eine Klasse <code>Rectangle</code> mit Konstruktor <code>(width, height)</code> und den Methoden <code>area()</code> und <code>perimeter()</code> (Fläche und Umfang, als Rückgabewert).",
+    "starter": "class Rectangle:\n    def __init__(self, width, height):\n        ",
+    "hint": "self.width = width, self.height = height; area: return self.width * self.height; perimeter: return 2 * (self.width + self.height)",
+    "solution": "class Rectangle:\n    def __init__(self, width, height):\n        self.width = width\n        self.height = height\n\n    def area(self):\n        return self.width * self.height\n\n    def perimeter(self):\n        return 2 * (self.width + self.height)",
+    "tests": "r = Rectangle(4, 3)\nassert r.area() == 12, f\"Rectangle(4, 3).area() sollte 12 sein, ist {r.area()}.\"\nassert r.perimeter() == 14, f\"Rectangle(4, 3).perimeter() sollte 14 sein, ist {r.perimeter()}.\"\nq = Rectangle(2, 2)\nassert q.area() == 4 and r.area() == 12, \"Jedes Objekt braucht seine eigenen Werte (self.width/self.height).\"\nassert r.width == 4 and r.height == 3, \"Die Attribute sollen width und height heißen.\""
+   },
+   {
+    "id": "k4-1f",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 08 A</span> Schreib <code>Account</code> mit <code>owner</code> und <code>balance</code> (Default 0) und der Methode <code>deposit(amount)</code>, die <b>nur positive</b> Beträge akzeptiert.",
+    "starter": "class Account:\n    ",
+    "hint": "def __init__(self, owner, balance=0): … def deposit(self, amount): if amount > 0: self.balance += amount",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount):\n        if amount > 0:\n            self.balance += amount",
+    "tests": "a = Account(\"Ada\", 100)\nb = Account(\"Bob\")\nassert b.balance == 0, \"Der Default-Kontostand soll 0 sein.\"\na.deposit(50)\nassert a.balance == 150 and b.balance == 0, \"Nach a.deposit(50) soll a 150 und b weiter 0 haben.\"\na.deposit(-20); a.deposit(0)\nassert a.balance == 150, \"Negative Beträge und 0 dürfen nichts ändern.\"\nassert a.owner == \"Ada\", \"owner fehlt oder ist falsch.\""
+   }
+  ]
+ },
+ {
+  "id": "kl-kapselung",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.2",
+  "title": "Kapselung & Properties",
+  "short": "Kapselung & Properties",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Kapselung, Properties",
+  "theory": "\n<h3>Das Problem</h3>\n<p>Im Beispiel aus 4.1 ist <code>balance</code> von außen <b>frei zugänglich</b>. Nichts hindert jemanden an <code>account_ada.balance = -1000000</code> – und die Prüfung in <code>deposit</code> ist damit wertlos.</p>\n<p class=\"callout\"><b>Kapselung</b> bedeutet, den <b>inneren Zustand</b> eines Objekts vor unkontrolliertem Zugriff zu schützen: Änderungen laufen <b>ausschließlich über Methoden</b>, die die fachlichen Regeln durchsetzen.</p>\n\n<h3>Kapselung in Python: Namenskonventionen</h3>\n<p>Python setzt Kapselung über <b>Konventionen</b> um, nicht über Zugriffsverbote (es gibt kein <code>private</code> wie in Java):</p>\n<table class=\"ops\">\n<tr><td><code>_balance</code><br><span class=\"muted\">ein Unterstrich</span></td><td>markiert ein Attribut als <b>intern</b>. Zugriff von außen gilt als Verstoß gegen die Schnittstelle – technisch bleibt er möglich. Die Konvention ist überall etabliert und wird von Linter und IDE geprüft. <b>Das ist der Normalfall.</b></td></tr>\n<tr><td><code>__balance</code><br><span class=\"muted\">zwei Unterstriche</span></td><td>aktiviert zusätzlich <b>Name Mangling</b>: Python benennt das Attribut nach außen in <code>_Account__balance</code> um. Dient v. a. dazu, Namenskollisionen in Klassenhierarchien zu vermeiden – im Alltag selten nötig.</td></tr>\n</table>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self):\n        self._balance = 100\n        self.__secret = \"pin\"\n\nacc = Account()\nprint(acc._balance)              # works – but you shouldn't\nprint(acc._Account__secret)      # name mangling: the real name\nprint(acc.__secret)              # AttributeError</div>\n\n<h3>Properties: kontrollierter Zugriff in Attributschreibweise</h3>\n<p>Für lesenden und schreibenden Zugriff auf geschützte Attribute gibt es <b>Properties</b>: Methoden, die sich nach außen <b>wie Attribute</b> verhalten.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    @property\n    def balance(self):\n        return self._balance\n\n    @balance.setter\n    def balance(self, new_balance):\n        if new_balance < 0:\n            print(\"A negative balance is not allowed.\")\n            return\n        self._balance = new_balance\n\naccount = Account(\"Ada\", 100)\nprint(account.balance)      # read through the property\naccount.balance = 500       # runs through the setter, including validation\naccount.balance = -50       # rejected by the setter\nprint(account.balance)</div>\n<ul>\n  <li><code>@property</code> ist ein <b>Dekorator</b> – eine Markierung, die das Verhalten der folgenden Funktion verändert. Wie Dekoratoren intern funktionieren, ist nicht Thema; das Rezept genügt.</li>\n  <li>Der <b>Getter</b> heißt wie das Attribut (<code>balance</code>) und gibt <code>self._balance</code> zurück.</li>\n  <li>Der <b>Setter</b> heißt gleich und bekommt <code>@balance.setter</code> – hier steckt die <b>Validierung</b>.</li>\n  <li>Der Aufrufer schreibt einfach <code>account.balance</code> – <b>ohne Klammern</b> – und trotzdem kontrolliert die Klasse jeden Zugriff.</li>\n</ul>\n<p class=\"callout\">Eine <b>Property ohne Setter</b> macht ein Attribut von außen praktisch <b>schreibgeschützt</b>: <code>account.balance = 99</code> führt dann zu einem <code>AttributeError</code>.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, balance):\n        self._balance = balance\n\n    @property\n    def balance(self):\n        return self._balance\n\nacc = Account(100)\nprint(acc.balance)\nacc.balance = 99</div>\n<p class=\"tip\">💡 Die Reaktion mit <code>print</code> auf ungültige Werte ist eine Übergangslösung – die saubere Behandlung mit <b>Exceptions</b> kommt in Kapitel 7.</p>\n",
+  "exercises": [
+   {
+    "id": "k4-2a",
+    "type": "quiz",
+    "task": "Was bedeutet ein <b>einzelner</b> führender Unterstrich, z. B. <code>self._balance</code>?",
+    "options": [
+     "Python verbietet den Zugriff von außen",
+     "Konvention: das Attribut ist intern – Zugriff von außen ist technisch möglich, gilt aber als Verstoß gegen die Schnittstelle",
+     "Das Attribut wird in _Account_balance umbenannt",
+     "Das Attribut ist eine Konstante"
+    ],
+    "correct": 1,
+    "explain": "Python setzt Kapselung über Konventionen um. Name Mangling gibt es erst bei zwei Unterstrichen."
+   },
+   {
+    "id": "k4-2b",
+    "type": "quiz",
+    "task": "Was passiert bei <code>__secret</code> (zwei Unterstriche) im Objekt einer Klasse <code>Account</code>?",
+    "options": [
+     "Nichts Besonderes",
+     "Name Mangling: nach außen heißt das Attribut _Account__secret",
+     "Das Attribut wird gelöscht",
+     "Es wird verschlüsselt gespeichert"
+    ],
+    "correct": 1,
+    "explain": "acc.__secret liefert einen AttributeError, acc._Account__secret funktioniert."
+   },
+   {
+    "id": "k4-2c",
+    "type": "output",
+    "task": "Was gibt der Code aus?",
+    "code": "class Thermostat:\n    def __init__(self):\n        self._temp = 20\n\n    @property\n    def temp(self):\n        return self._temp\n\n    @temp.setter\n    def temp(self, value):\n        if 5 <= value <= 30:\n            self._temp = value\n\nt = Thermostat()\nt.temp = 25\nt.temp = 99\nprint(t.temp)",
+    "lines": 1,
+    "explain": "25 wird angenommen, 99 vom Setter abgelehnt – der Wert bleibt 25."
+   },
+   {
+    "id": "k4-2d",
+    "type": "quiz",
+    "task": "Warum verhindert eine <b>Property ohne Setter</b> das Setzen von außen, obwohl <code>_balance</code> technisch erreichbar bleibt?",
+    "options": [
+     "Weil Python _balance automatisch schützt",
+     "Weil account.balance = … über die Property läuft – ohne Setter gibt es keine Methode zum Schreiben → AttributeError. Nur wer bewusst _balance verwendet, umgeht das",
+     "Weil Properties nur einmal gesetzt werden können",
+     "Das verhindert es nicht"
+    ],
+    "correct": 1,
+    "explain": "Die Property ersetzt das Attribut balance. Der direkte Zugriff auf _balance verstößt gegen die Konvention."
+   },
+   {
+    "id": "k4-2e",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 08 B</span> Stell <code>Account</code> um: Der Kontostand heißt <code>_balance</code> und ist nur über eine <b>Property ohne Setter</b> namens <code>balance</code> lesbar. Ergänze <code>deposit(amount)</code> (nur positiv) und <code>withdraw(amount)</code>: nur wenn der Betrag <b>positiv und gedeckt</b> ist, sonst eine gedruckte Meldung.",
+    "starter": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    ",
+    "hint": "@property def balance(self): return self._balance. withdraw: if amount <= 0 or amount > self._balance: print(...) und return; sonst self._balance -= amount.",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    @property\n    def balance(self):\n        return self._balance\n\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n\n    def withdraw(self, amount):\n        if amount <= 0 or amount > self._balance:\n            print(\"Withdrawal not possible.\")\n            return\n        self._balance -= amount",
+    "tests": "a = Account(\"Ada\", 100)\nassert a.balance == 100, \"a.balance soll den Kontostand liefern (Property).\"\ntry:\n    a.balance = 99\n    ok = False\nexcept AttributeError:\n    ok = True\nassert ok, \"a.balance = 99 soll fehlschlagen – Property OHNE Setter.\"\na.deposit(50); a.withdraw(30)\nassert a.balance == 120, f\"100 + 50 - 30 = 120, ist {a.balance}.\"\nmsg = _capture(a.withdraw, 500)\nassert a.balance == 120 and msg.strip(), \"Ungedeckte Abhebung: nichts abbuchen und eine Meldung ausgeben.\"\n_capture(a.withdraw, -5)\nassert a.balance == 120, \"Negative Abhebung darf nichts ändern.\"\nassert hasattr(a, \"_balance\"), \"Der Kontostand soll intern _balance heißen.\""
+   },
+   {
+    "id": "k4-2f",
+    "type": "py",
+    "task": "Schreib eine Klasse <code>AudioTrack</code> (Übung aus dem Skriptum) mit <code>name</code>, <code>length</code> (Sekunden) und einer <code>volume</code>-<b>Property mit Setter</b>: nur Werte von <b>0 bis 100</b> sind erlaubt, sonst bleibt der alte Wert (Meldung ausgeben). Startwert der Lautstärke: 50.",
+    "starter": "class AudioTrack:\n    def __init__(self, name, length):\n        ",
+    "hint": "self._volume = 50 im Konstruktor. @property def volume … @volume.setter def volume(self, value): if not 0 <= value <= 100: print(...); return; self._volume = value",
+    "solution": "class AudioTrack:\n    def __init__(self, name, length):\n        self.name = name\n        self.length = length\n        self._volume = 50\n\n    @property\n    def volume(self):\n        return self._volume\n\n    @volume.setter\n    def volume(self, value):\n        if not 0 <= value <= 100:\n            print(\"Volume must be between 0 and 100.\")\n            return\n        self._volume = value",
+    "tests": "t = AudioTrack(\"Intro\", 90)\nassert t.volume == 50, \"Startlautstärke soll 50 sein.\"\nt.volume = 80\nassert t.volume == 80, \"volume = 80 soll übernommen werden.\"\n_capture(setattr, t, \"volume\", 150)\nassert t.volume == 80, \"150 ist ungültig – der Wert muss 80 bleiben.\"\n_capture(setattr, t, \"volume\", -1)\nassert t.volume == 80, \"-1 ist ungültig.\"\nt.volume = 0; assert t.volume == 0, \"0 ist erlaubt.\"\nt.volume = 100; assert t.volume == 100, \"100 ist erlaubt.\"\nassert isinstance(type(t).__dict__.get(\"volume\"), property), \"volume soll eine Property sein.\""
+   }
+  ]
+ },
+ {
+  "id": "kl-str",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.3",
+  "title": "Lesbare Objekte: __str__ und __repr__",
+  "short": "__str__ & __repr__",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Lesbare Objekte: __str__ und __repr__",
+  "theory": "\n<h3>Das Problem</h3>\n<p>Ein Objekt direkt auszugeben liefert standardmäßig wenig Brauchbares:</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\naccount = Account(\"Ada\", 500)\nprint(account)</div>\n\n<h3>__str__ und __repr__</h3>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def __str__(self):\n        return f\"account of {self.owner}: {self._balance:.2f} EUR\"\n\n    def __repr__(self):\n        return f\"Account({self.owner!r}, {self._balance})\"\n\naccount = Account(\"Ada\", 500)\nprint(account)           # uses __str__\nprint(repr(account))     # uses __repr__ (like the REPL)\nprint([account])         # lists show __repr__</div>\n<table class=\"ops\">\n<tr><td><b><code>__str__</code></b></td><td>Textdarstellung für <b>Benutzer</b>. Wird von <code>print()</code> und f-Strings verwendet.</td></tr>\n<tr><td><b><code>__repr__</code></b></td><td>eindeutige Darstellung für <b>Entwickler</b> – idealerweise ein <b>nachbaubarer Python-Ausdruck</b> wie <code>Account('Ada', 500)</code>. Wird von der REPL, von Debuggern und bei der Ausgabe von <b>Listen</b> verwendet.</td></tr>\n</table>\n<p class=\"tip\">💡 <code>{self.owner!r}</code> im f-String ruft <code>repr()</code> auf – darum stehen bei Strings die Anführungszeichen dabei: <code>'Ada'</code>.</p>\n<p class=\"callout\"><b>Arbeitsregel für dieses Jahr:</b> Jede Klasse bekommt <b>mindestens ein <code>__str__</code></b>. Zwei Zeilen Aufwand, der Nutzen zeigt sich bei jeder Fehlersuche.</p>\n\n<h3>Dunder-Methoden</h3>\n<p>Methoden mit doppelten Unterstrichen auf beiden Seiten heißen <b>Dunder-Methoden</b>. Über sie klinken sich eigene Klassen in die Mechanismen der Sprache ein:</p>\n<table class=\"ops\">\n<tr><td><code>__init__</code></td><td>Objekterzeugung</td><td><code>Account(\"Ada\")</code></td></tr>\n<tr><td><code>__str__</code></td><td>Textausgabe</td><td><code>print(acc)</code>, <code>f\"{acc}\"</code></td></tr>\n<tr><td><code>__repr__</code></td><td>Entwicklerdarstellung</td><td><code>repr(acc)</code>, REPL, Listen</td></tr>\n<tr><td><code>__len__</code></td><td>Länge</td><td><code>len(obj)</code></td></tr>\n<tr><td><code>__eq__</code></td><td>Vergleich</td><td><code>a == b</code></td></tr>\n</table>\n<div class=\"example\" data-lang=\"py\">class Playlist:\n    def __init__(self, name):\n        self.name = name\n        self.tracks = []\n\n    def __len__(self):\n        return len(self.tracks)\n\n    def __eq__(self, other):\n        return self.name == other.name and self.tracks == other.tracks\n\np = Playlist(\"Rock\")\np.tracks.append(\"Paranoid\")\nprint(len(p))\nprint(p == Playlist(\"Rock\"))</div>\n",
+  "exercises": [
+   {
+    "id": "k4-3a",
+    "type": "quiz",
+    "task": "Wann wird <code>__str__</code> verwendet, wann <code>__repr__</code>?",
+    "options": [
+     "__str__ für Entwickler, __repr__ für Benutzer",
+     "__str__ von print() und f-Strings (für Benutzer); __repr__ von REPL, Debugger und bei Listen (für Entwickler)",
+     "Beide werden nie automatisch aufgerufen",
+     "__repr__ nur bei Zahlen"
+    ],
+    "correct": 1,
+    "explain": "__repr__ soll idealerweise ein nachbaubarer Ausdruck sein, z. B. Account('Ada', 500)."
+   },
+   {
+    "id": "k4-3b",
+    "type": "output",
+    "task": "Was gibt der Code aus?",
+    "code": "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __str__(self):\n        return f\"({self.x}|{self.y})\"\n\n    def __repr__(self):\n        return f\"Point({self.x}, {self.y})\"\n\np = Point(2, 3)\nprint(p)\nprint([p])",
+    "lines": 2,
+    "explain": "print(p) nimmt __str__. Eine Liste zeigt ihre Elemente mit __repr__."
+   },
+   {
+    "id": "k4-3c",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 08 B/D</span> Ergänze <code>Account</code> um <code>__str__</code> → <code>account of Ada: 125.50 EUR</code> (2 Nachkommastellen) und <code>__repr__</code> → <code>Account('Ada', 125.5)</code>.",
+    "starter": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    ",
+    "hint": "return f\"account of {self.owner}: {self._balance:.2f} EUR\" bzw. return f\"Account({self.owner!r}, {self._balance})\"",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def __str__(self):\n        return f\"account of {self.owner}: {self._balance:.2f} EUR\"\n\n    def __repr__(self):\n        return f\"Account({self.owner!r}, {self._balance})\"",
+    "tests": "a = Account(\"Ada\", 125.5)\nassert str(a) == \"account of Ada: 125.50 EUR\", f\"str(a) ist {str(a)!r}.\"\nassert repr(a) == \"Account('Ada', 125.5)\", f\"repr(a) ist {repr(a)!r}.\"\nassert str(Account(\"Bob\")) == \"account of Bob: 0.00 EUR\", \"Default-Kontostand 0 → 0.00 EUR.\""
+   },
+   {
+    "id": "k4-3d",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 08 D</span> Implementiere <code>__eq__</code>: Zwei Konten gelten als gleich, wenn <b>Inhaber und Kontostand</b> übereinstimmen.",
+    "starter": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def __eq__(self, other):\n        ",
+    "hint": "return self.owner == other.owner and self._balance == other._balance",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def __eq__(self, other):\n        return self.owner == other.owner and self._balance == other._balance",
+    "tests": "assert Account(\"Ada\", 10) == Account(\"Ada\", 10), \"Gleicher Inhaber und Stand → gleich.\"\nassert not (Account(\"Ada\", 10) == Account(\"Ada\", 20)), \"Anderer Stand → ungleich.\"\nassert not (Account(\"Ada\", 10) == Account(\"Bob\", 10)), \"Anderer Inhaber → ungleich.\""
+   }
+  ]
+ },
+ {
+  "id": "kl-attribute",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.4",
+  "title": "Klassenattribute und Instanzattribute",
+  "short": "Klassen- vs. Instanzattribut",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Klassenattribute und Instanzattribute",
+  "theory": "\n<div class=\"grid2\">\n<div class=\"card hl\"><b>Instanzattribut</b><br>wird in <code>__init__</code> über <code>self</code> gesetzt und gehört <b>dem einzelnen Objekt</b>.<br><code>self.owner = owner</code></div>\n<div class=\"card hl\"><b>Klassenattribut</b><br>steht <b>direkt im Klassenkörper</b> und gehört <b>der Klasse</b> – alle Objekte teilen es.<br><code>interest_rate = 0.02</code></div>\n</div>\n<pre class=\"syntax\">class Account:\n    interest_rate = 0.02            # class attribute: shared by all accounts\n\n    def __init__(self, owner):\n        self.owner = owner          # instance attribute: per object</pre>\n<p>Für <b>gemeinsame Konstanten</b> wie den Zinssatz ist ein Klassenattribut angemessen. Gelesen wird es über die Klasse (<code>Account.interest_rate</code>) oder ein Objekt.</p>\n\n<h3>Die Falle: veränderliche Klassenattribute</h3>\n<div class=\"example\" data-lang=\"py\">class Playlist:\n    tracks = []                         # WRONG: one list shared by ALL playlists\n\n    def add(self, song):\n        self.tracks.append(song)\n\nrock = Playlist()\njazz = Playlist()\nrock.add(\"Paranoid\")\nprint(jazz.tracks)</div>\n<p>Beide Playlists teilen <b>dieselbe</b> Liste, weil sie an der Klasse hängt statt am Objekt. Richtig: die Liste im Konstruktor anlegen – dann bekommt jedes Objekt seine eigene:</p>\n<div class=\"example\" data-lang=\"py\">class Playlist:\n    def __init__(self):\n        self.tracks = []                # RIGHT: each playlist gets its own list\n\n    def add(self, song):\n        self.tracks.append(song)\n\nrock = Playlist()\njazz = Playlist()\nrock.add(\"Paranoid\")\nprint(jazz.tracks)</div>\n<p class=\"callout\"><b>Arbeitsregel:</b> Veränderliche Attribute (<b>Listen, Dictionaries</b>) immer in <code>__init__</code> anlegen. Klassenattribute nur für Werte, die <b>tatsächlich allen Exemplaren gemeinsam</b> sind.</p>\n\n<h3>Typischer Einsatz: Zähler</h3>\n<p>Ein Klassenattribut eignet sich auch, um mitzuzählen, wie viele Objekte erzeugt wurden. Wichtig: im Konstruktor über die <b>Klasse</b> erhöhen (<code>Account.account_count += 1</code>), nicht über <code>self</code> – sonst entstünde ein neues Instanzattribut.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    account_count = 0\n\n    def __init__(self, owner):\n        self.owner = owner\n        Account.account_count += 1\n\nAccount(\"Ada\")\nAccount(\"Bob\")\nprint(Account.account_count)</div>\n",
+  "exercises": [
+   {
+    "id": "k4-4a",
+    "type": "quiz",
+    "task": "Warum ist <code>tracks = []</code> im Klassenkörper ein Fehler, <code>interest_rate = 0.02</code> aber in Ordnung?",
+    "options": [
+     "Listen sind im Klassenkörper verboten",
+     "Eine Liste ist veränderlich und wird von allen Objekten geteilt – fügt eines etwas hinzu, sehen es alle. Der Zinssatz ist ein gemeinsamer, unveränderter Wert",
+     "Zahlen sind schneller als Listen",
+     "Beides ist ein Fehler"
+    ],
+    "correct": 1,
+    "explain": "Veränderliche Attribute gehören in __init__."
+   },
+   {
+    "id": "k4-4b",
+    "type": "output",
+    "code": "class Team:\n    members = []\n\n    def __init__(self, name):\n        self.name = name\n\n    def join(self, person):\n        self.members.append(person)\n\na = Team(\"A\")\nb = Team(\"B\")\na.join(\"Ada\")\nb.join(\"Bob\")\nprint(a.members)",
+    "lines": 1,
+    "explain": "members ist ein Klassenattribut – beide Teams teilen dieselbe Liste."
+   },
+   {
+    "id": "k4-4c",
+    "type": "py",
+    "task": "<span class=\"tag\">Aufgabe 08 C</span> Zähl mit einem Klassenattribut <code>account_count</code> mit, wie viele Konten insgesamt erzeugt wurden. Ergänze eine Buchungsliste <code>_transactions</code> (pro Objekt!), in der <code>deposit</code> jede Einzahlung als Text ablegt, z. B. <code>\"deposit 50\"</code>.",
+    "starter": "class Account:\n    ",
+    "hint": "account_count = 0 im Klassenkörper; im Konstruktor Account.account_count += 1 und self._transactions = []. In deposit: self._transactions.append(f\"deposit {amount}\")",
+    "solution": "class Account:\n    account_count = 0\n\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n        self._transactions = []\n        Account.account_count += 1\n\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n            self._transactions.append(f\"deposit {amount}\")",
+    "tests": "start = Account.account_count\na = Account(\"Ada\"); b = Account(\"Bob\", 10)\nassert Account.account_count == start + 2, \"account_count soll pro neuem Konto um 1 steigen (über die Klasse!).\"\nassert \"account_count\" in Account.__dict__, \"account_count soll ein Klassenattribut sein.\"\na.deposit(50)\nassert a._transactions == [\"deposit 50\"], f\"a._transactions ist {a._transactions}.\"\nassert b._transactions == [], \"Jedes Konto braucht seine EIGENE Liste – im Konstruktor anlegen!\"\nassert \"_transactions\" not in Account.__dict__, \"_transactions darf kein Klassenattribut sein.\""
+   }
+  ]
+ },
+ {
+  "id": "kl-static",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.5",
+  "title": "@staticmethod und @classmethod",
+  "short": "static- & classmethod",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Statische Methoden und Klassenmethoden, Was es sonst noch gibt",
+  "theory": "\n<p>Gewöhnliche Methoden erhalten mit <code>self</code> das Objekt und arbeiten mit dessen Instanzattributen. Manche Operationen gehören aber zur Klasse, <b>ohne ein einzelnes Objekt zu betreffen</b>. Dafür gibt es zwei Dekoratoren.</p>\n\n<h3>@staticmethod – Funktion im Namensraum der Klasse</h3>\n<p>Bekommt <b>weder <code>self</code> noch die Klasse</b>. Eine gewöhnliche Funktion, die thematisch in der Klasse abgelegt ist. Typisch: <b>Hilfsberechnungen und Prüfungen</b> ohne Objektzustand.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    @staticmethod\n    def is_valid_iban(iban):\n        cleaned = iban.replace(\" \", \"\")\n        return len(cleaned) == 20 and cleaned[:2].isalpha()\n\nprint(Account.is_valid_iban(\"AT12 3456 7890 1234 56\"))</div>\n<p>Aufruf über die Klasse (<code>Account.is_valid_iban(...)</code>) – ein Objekt ist nicht nötig. Ohne den Dekorator würde Python das erste Argument als <code>self</code> deuten.</p>\n\n<h3>@classmethod – Methode auf der Klasse</h3>\n<p>Bekommt als ersten Parameter <b>die Klasse selbst</b>, konventionell <code>cls</code>. Wichtigster Einsatz: <b>alternative Konstruktoren</b> (Fabrikmethoden), die ein Objekt aus einer anderen Datenquelle erzeugen.</p>\n<div class=\"example\" data-lang=\"py\">class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    @classmethod\n    def from_dict(cls, data):\n        return cls(data[\"owner\"], data.get(\"balance\", 0))\n\nrecord = {\"owner\": \"Ada\", \"balance\": 100}\naccount = Account.from_dict(record)         # cls(...) creates an Account\nprint(account.owner, account._balance)</div>\n<p><code>cls(...)</code> ruft den Konstruktor der Klasse auf, auf der die Methode aufgerufen wurde – bewusst <b>nicht</b> fest als <code>Account(...)</code>. In einer Klassenhierarchie erzeugt <code>SavingsAccount.from_dict(...)</code> dadurch automatisch ein <code>SavingsAccount</code> (Vererbung kommt im nächsten Kapitel). So bietet man mehrere Erzeugungswege an, ohne den Konstruktor zu überladen.</p>\n\n<h3>Die drei methodengebundenen Dekoratoren</h3>\n<table class=\"ops\">\n<tr><td><code>@property</code></td><td>lesender Zugriff in Attributschreibweise</td></tr>\n<tr><td><code>@staticmethod</code></td><td>Funktion ohne Objekt- oder Klassenbezug</td></tr>\n<tr><td><code>@classmethod</code></td><td>Methode, die die Klasse statt des Objekts erhält</td></tr>\n</table>\n<p class=\"callout\"><b>Faustregel:</b> <code>self</code> verwendet, wer <b>Instanzdaten</b> braucht · <code>cls</code>, wer <b>die Klasse</b> braucht (meist für alternative Konstruktoren) · keines von beiden → reine Hilfsfunktion → <code>@staticmethod</code>.</p>\n",
+  "exercises": [
+   {
+    "id": "k4-5a",
+    "type": "quiz",
+    "task": "Eine Methode prüft nur, ob ein Text eine gültige Postleitzahl ist – sie braucht weder Objekt- noch Klassendaten. Welcher Methodentyp passt?",
+    "options": [
+     "normale Methode mit self",
+     "@classmethod",
+     "@staticmethod",
+     "@property"
+    ],
+    "correct": 2,
+    "explain": "Reine Hilfsfunktion ohne Objekt- oder Klassenbezug → @staticmethod."
+   },
+   {
+    "id": "k4-5b",
+    "type": "quiz",
+    "task": "Wofür verwendet man <code>@classmethod</code> am häufigsten?",
+    "options": [
+     "Für Getter",
+     "Für alternative Konstruktoren (Fabrikmethoden), z. B. from_dict oder from_seconds",
+     "Um self zu sparen",
+     "Für Vergleiche mit =="
+    ],
+    "correct": 1,
+    "explain": "cls(...) erzeugt ein Objekt der Klasse, auf der die Methode aufgerufen wurde."
+   },
+   {
+    "id": "k4-5c",
+    "type": "quiz",
+    "task": "Warum schreibt man in einer Klassenmethode <code>cls(...)</code> statt <code>Account(...)</code>?",
+    "options": [
+     "Weil es kürzer ist",
+     "Damit in Unterklassen automatisch ein Objekt der Unterklasse entsteht (SavingsAccount.from_dict → SavingsAccount)",
+     "Weil Account in der Klasse nicht bekannt ist",
+     "Es gibt keinen Unterschied"
+    ],
+    "correct": 1,
+    "explain": "Das wird bei Vererbung (Kapitel 5) wichtig."
+   },
+   {
+    "id": "k4-5d",
+    "type": "py",
+    "task": "Ergänze <code>Temperature</code> um eine <b>Klassenmethode</b> <code>from_fahrenheit(cls, f)</code> (Umrechnung: <code>(f - 32) * 5 / 9</code>) und eine <b>statische Methode</b> <code>is_freezing(celsius)</code> (True bei ≤ 0).",
+    "starter": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    ",
+    "hint": "@classmethod def from_fahrenheit(cls, f): return cls((f - 32) * 5 / 9). @staticmethod def is_freezing(celsius): return celsius <= 0",
+    "solution": "class Temperature:\n    def __init__(self, celsius):\n        self.celsius = celsius\n\n    @classmethod\n    def from_fahrenheit(cls, f):\n        return cls((f - 32) * 5 / 9)\n\n    @staticmethod\n    def is_freezing(celsius):\n        return celsius <= 0",
+    "tests": "t = Temperature.from_fahrenheit(212)\nassert isinstance(t, Temperature), \"from_fahrenheit soll ein Temperature-Objekt liefern.\"\nassert abs(t.celsius - 100) < 1e-9, f\"212 °F = 100 °C, erhalten {t.celsius}.\"\nclass Sub(Temperature): pass\nassert type(Sub.from_fahrenheit(32)) is Sub, \"Verwende cls(...) statt Temperature(...).\"\nassert Temperature.is_freezing(0) and Temperature.is_freezing(-5) and not Temperature.is_freezing(3), \"is_freezing falsch.\"\nassert isinstance(Temperature.__dict__[\"is_freezing\"], staticmethod), \"is_freezing soll @staticmethod sein.\"\nassert isinstance(Temperature.__dict__[\"from_fahrenheit\"], classmethod), \"from_fahrenheit soll @classmethod sein.\""
+   }
+  ]
+ },
+ {
+  "id": "kl-beispiel",
+  "group": "Kapitel 4 · Klassen in Python",
+  "num": "4.6",
+  "title": "Vollständiges Beispiel & Zusammenfassung",
+  "short": "Beispiel & Übersicht",
+  "source": "sew.htl-villach.at · Jahr 3 · 4. Klassen in Python – Ein vollständiges Beispiel, Zusammenfassung der Syntax, Lernergebnisse",
+  "theory": "\n<h3>Die Klasse Clip</h3>\n<p>Aus dem Videoschnitt-Umfeld – kombiniert alle Elemente des Kapitels und ist Ausgangspunkt für die nächsten Kapitel:</p>\n<div class=\"example\" data-lang=\"py\">class Clip:\n    \"\"\"A video clip in an editing project.\"\"\"\n\n    fps = 25                                    # project standard for all clips\n\n    def __init__(self, name, duration_frames):\n        self.name = name\n        self._duration_frames = duration_frames\n\n    @classmethod\n    def from_seconds(cls, name, seconds):\n        \"\"\"Create a clip from a duration given in seconds.\"\"\"\n        return cls(name, round(seconds * cls.fps))\n\n    @staticmethod\n    def frames_to_seconds(frame_count):\n        return frame_count / Clip.fps\n\n    @property\n    def duration_seconds(self):\n        return self._duration_frames / Clip.fps\n\n    def trim(self, frame_count):\n        \"\"\"Cut the given number of frames off the end.\"\"\"\n        if 0 < frame_count < self._duration_frames:\n            self._duration_frames -= frame_count\n\n    def __str__(self):\n        return f\"{self.name} ({self.duration_seconds:.1f} s)\"\n\nintro = Clip(\"intro\", 250)\nintro.trim(50)\nprint(intro)\n\noutro = Clip.from_seconds(\"outro\", 4)   # alternative constructor\nprint(outro)\nprint(Clip.frames_to_seconds(100))      # no object needed</div>\n<p>Darin steckt: ein <b>Klassenattribut</b> (Projektstandard <code>fps</code>), ein <b>geschütztes Instanzattribut</b>, eine <b>Property</b> für die abgeleitete Größe, eine <b>Klassenmethode</b> als alternativer Konstruktor, eine <b>statische Hilfsmethode</b>, eine Methode mit <b>Plausibilitätsprüfung</b>, <code>__str__</code> sowie <b>Docstrings</b>. <i>Das ist der Standard, den eigene Klassen ab jetzt erfüllen sollen.</i></p>\n\n<h3>Zusammenfassung der Syntax</h3>\n<table class=\"ops\">\n<tr><td>Klassendefinition</td><td><code>class Account:</code></td></tr>\n<tr><td>Konstruktor</td><td><code>def __init__(self, ...):</code></td></tr>\n<tr><td>Objekt erzeugen</td><td><code>Account(\"Ada\", 100)</code></td></tr>\n<tr><td>Methode</td><td><code>def deposit(self, amount):</code></td></tr>\n<tr><td>Objektbezug</td><td><code>self</code>, expliziter erster Parameter</td></tr>\n<tr><td>Internes Attribut</td><td><code>self._balance</code> (Konvention)</td></tr>\n<tr><td>Lesender Zugriff</td><td><code>@property</code></td></tr>\n<tr><td>Schreibender Zugriff</td><td><code>@balance.setter</code></td></tr>\n<tr><td>Methode ohne Objektbezug</td><td><code>@staticmethod</code></td></tr>\n<tr><td>Methode auf der Klasse</td><td><code>@classmethod</code> (erster Parameter <code>cls</code>)</td></tr>\n<tr><td>Textdarstellung</td><td><code>__str__</code>, <code>__repr__</code></td></tr>\n<tr><td>Geteilter Wert</td><td>Klassenattribut im Klassenkörper</td></tr>\n</table>\n\n<h3>Lernergebnisse von Kapitel 4</h3>\n<table class=\"ops\">\n<tr><td><b>Erklären</b></td><td>Unterschied Klasse/Objekt, Rolle von <code>__init__</code> und <code>self</code></td></tr>\n<tr><td><b>Anwenden</b></td><td>Klassen mit Konstruktor, Methoden und Attributen schreiben, Objekte erzeugen und verwenden</td></tr>\n<tr><td><b>Anwenden</b></td><td>Kapselung mit Unterstrich-Konvention und Properties (<code>@property</code>, Setter mit Validierung)</td></tr>\n<tr><td><b>Erklären</b></td><td>Klassen- vs. Instanzattribute, Falle geteilter veränderlicher Klassenattribute</td></tr>\n<tr><td><b>Anwenden</b></td><td><code>@staticmethod</code> und <code>@classmethod</code> (alternative Konstruktoren) sachgerecht einsetzen</td></tr>\n<tr><td><b>Anwenden</b></td><td>Objekte mit <code>__str__</code> und <code>__repr__</code> lesbar darstellen</td></tr>\n</table>\n",
+  "exercises": [
+   {
+    "id": "k4-6a",
+    "type": "output",
+    "code": "class Clip:\n    fps = 25\n\n    def __init__(self, name, duration_frames):\n        self.name = name\n        self._duration_frames = duration_frames\n\n    @property\n    def duration_seconds(self):\n        return self._duration_frames / Clip.fps\n\n    def trim(self, frame_count):\n        if 0 < frame_count < self._duration_frames:\n            self._duration_frames -= frame_count\n\n    def __str__(self):\n        return f\"{self.name} ({self.duration_seconds:.1f} s)\"\n\nc = Clip(\"intro\", 250)\nc.trim(300)\nc.trim(100)\nprint(c)",
+    "lines": 1,
+    "explain": "trim(300) wird abgelehnt (nicht kleiner als 250), trim(100) → 150 Frames = 6.0 s."
+   },
+   {
+    "id": "k4-6b",
+    "type": "multi",
+    "task": "Welche Elemente kommen in der Klasse <code>Clip</code> vor?",
+    "options": [
+     "ein Klassenattribut (fps)",
+     "eine Property (duration_seconds)",
+     "ein alternativer Konstruktor mit @classmethod",
+     "ein Setter für duration_seconds"
+    ],
+    "correct": [
+     0,
+     1,
+     2
+    ],
+    "explain": "duration_seconds ist nur lesbar – es gibt keinen Setter."
+   },
+   {
+    "id": "k4-6c",
+    "type": "py",
+    "task": "Schreib eine Klasse <code>Song</code> nach dem Vorbild von <code>Clip</code>:<ul style=\"margin:6px 0 0;padding-left:18px\"><li>Konstruktor <code>(title, seconds)</code>, Dauer intern in <code>_seconds</code></li><li><b>Property</b> <code>minutes</code> (nur lesen) → Dauer in Minuten</li><li><b>Klassenmethode</b> <code>from_minutes(cls, title, minutes)</code></li><li><code>__str__</code> → <code>\"Intro (1:30)\"</code> (Minuten:Sekunden, Sekunden zweistellig)</li></ul>",
+    "starter": "class Song:\n    ",
+    "hint": "__str__: m, s = divmod(self._seconds, 60); return f\"{self.title} ({m}:{s:02d})\". from_minutes: return cls(title, round(minutes * 60))",
+    "solution": "class Song:\n    def __init__(self, title, seconds):\n        self.title = title\n        self._seconds = seconds\n\n    @property\n    def minutes(self):\n        return self._seconds / 60\n\n    @classmethod\n    def from_minutes(cls, title, minutes):\n        return cls(title, round(minutes * 60))\n\n    def __str__(self):\n        m, s = divmod(self._seconds, 60)\n        return f\"{self.title} ({m}:{s:02d})\"",
+    "tests": "s = Song(\"Intro\", 90)\nassert str(s) == \"Intro (1:30)\", f\"str(Song('Intro', 90)) ist {str(s)!r}.\"\nassert str(Song(\"Short\", 65)) == \"Short (1:05)\", \"Sekunden zweistellig: 1:05.\"\nassert s.minutes == 1.5, f\"minutes sollte 1.5 sein, ist {s.minutes}.\"\ntry:\n    s.minutes = 3; ro = False\nexcept AttributeError:\n    ro = True\nassert ro, \"minutes soll nur lesbar sein (Property ohne Setter).\"\nt = Song.from_minutes(\"Main\", 4)\nassert isinstance(t, Song) and str(t) == \"Main (4:00)\", f\"from_minutes('Main', 4) → {t}.\""
+   }
+  ]
+ },
+ {
   "id": "auf-01",
   "group": "Aufgaben",
   "num": "01",
@@ -1252,6 +1591,67 @@ window.SEW_LESSONS = [
     ],
     "correct": 2,
     "explain": "n! Anordnungen → 10! = 3 628 800. Die Laufzeit wächst entsprechend explosiv. binary_strings(n) liefert dagegen 2ⁿ Ergebnisse."
+   }
+  ]
+ },
+ {
+  "id": "auf-08",
+  "group": "Aufgaben",
+  "num": "08",
+  "title": "Aufgabe 08 – Konto mit Klasse",
+  "short": "08 Konto mit Klasse",
+  "source": "sew.htl-villach.at · Jahr 3 · Übungen – Aufgabe 08",
+  "theory": "\n<h3>Worum geht es?</h3>\n<p>Ein Bankkonto als Python-Klasse – mit allen Bausteinen von Kapitel 4: Konstruktor, Methoden, Kapselung, Properties, <code>__str__</code> und Klassen- vs. Instanzattribute. Das Konto ist bewusst klein; es geht um <b>saubere Handwerkstechnik</b>. Dieselbe Klasse wird später (Exceptions) weiter ausgebaut. Theorie: <a href=\"#kl-objekt\">4.1</a>–<a href=\"#kl-beispiel\">4.6</a>.</p>\n<table class=\"ops\">\n<tr><td><b>Teil A – Grundklasse</b></td><td><code>Account</code> mit <code>owner</code>, <code>balance</code> (Default 0) und <code>deposit(amount)</code> (nur positiv); zwei Konten erzeugen; absichtlich <code>Account.deposit(50)</code> ohne Objekt aufrufen und die Fehlermeldung mit <code>self</code> erklären</td></tr>\n<tr><td><b>Teil B – Kapselung</b></td><td><code>_balance</code> + Property <code>balance</code> ohne Setter; <code>withdraw(amount)</code> nur wenn positiv und gedeckt; Experiment mit <code>_balance</code> und <code>__secret</code>; <code>__str__</code> → <code>account of Ada: 125.50 EUR</code></td></tr>\n<tr><td><b>Teil C – Klassenattribut & Demo</b></td><td><code>account_count</code>; Buchungsliste <code>_transactions</code> + <code>print_statement()</code>; Demo hinter <code>if __name__ == \"__main__\":</code></td></tr>\n<tr><td><b>Teil D – Experte</b></td><td><code>transfer(self, target, amount)</code> „ganz oder gar nicht“; <code>__repr__</code>; <code>__eq__</code> (Inhaber + Stand) und begründete Position, ob Konten überhaupt gleich sein sollten</td></tr>\n</table>\n<h3>if __name__ == \"__main__\":</h3>\n<p>Jede Python-Datei hat die Variable <code>__name__</code>. Wird die Datei <b>direkt gestartet</b> (<code>python account.py</code>), ist sie <code>\"__main__\"</code>. Wird die Datei dagegen <b>importiert</b> (<code>from account import Account</code>), ist <code>__name__</code> der Modulname (<code>\"account\"</code>). Code hinter der Bedingung läuft also <b>nur beim direkten Start</b> – das Demo-Skript stört nicht, wenn andere Dateien die Klasse importieren.</p>\n<div class=\"example\" data-lang=\"py\">print(__name__)\n\nif __name__ == \"__main__\":\n    print(\"started directly – run the demo\")</div>\n<h3>Teil D: „ganz oder gar nicht“</h3>\n<p>Bei einer Überweisung zuerst <b>alles prüfen</b> (Betrag positiv? gedeckt?) und erst dann buchen. So kann kein Zustand entstehen, in dem abgebucht, aber nicht eingezahlt wurde.</p>\n<h3>Wissenscheck</h3>\n<ul>\n<li>Was bedeutet <code>deposit() takes 1 positional argument but 2 were given</code> in Klartext?</li>\n<li>Warum verhindert eine Property ohne Setter das Setzen von außen, obwohl <code>_balance</code> erreichbar bleibt?</li>\n<li>Wann wird <code>__str__</code> verwendet, wann <code>__repr__</code>?</li>\n<li>Warum ist <code>tracks = []</code> im Klassenkörper ein Fehler, <code>interest_rate = 0.02</code> aber in Ordnung?</li>\n<li>Was bewirkt <code>if __name__ == \"__main__\":</code>?</li>\n</ul>\n",
+  "exercises": [
+   {
+    "id": "a08-a",
+    "type": "quiz",
+    "task": "<span class=\"tag\">Teil A</span> Was passiert bei <code>Account.deposit(50)</code> – also ohne Objekt?",
+    "options": [
+     "Es wird auf alle Konten 50 eingezahlt",
+     "Fehler: 50 wird als self übergeben und der Parameter amount fehlt (missing 1 required positional argument)",
+     "Es wird ein neues Konto erzeugt",
+     "Nichts"
+    ],
+    "correct": 1,
+    "explain": "Beim Aufruf über die Klasse übergibt Python kein Objekt – man müsste Account.deposit(konto, 50) schreiben."
+   },
+   {
+    "id": "a08-b",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil C</span> Schreib das komplette <code>Account</code> mit <code>deposit</code>, <code>withdraw</code> (nur positiv und gedeckt), Buchungsliste <code>_transactions</code> und <code>print_statement()</code>, die jede Buchung in einer eigenen Zeile ausgibt (<code>deposit 50</code>, <code>withdraw 20</code>).",
+    "starter": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n        self._transactions = []\n\n    ",
+    "hint": "deposit/withdraw hängen f\"deposit {amount}\" bzw. f\"withdraw {amount}\" an – aber nur bei gültigen Buchungen. print_statement: for t in self._transactions: print(t)",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n        self._transactions = []\n\n    @property\n    def balance(self):\n        return self._balance\n\n    def deposit(self, amount):\n        if amount > 0:\n            self._balance += amount\n            self._transactions.append(f\"deposit {amount}\")\n\n    def withdraw(self, amount):\n        if amount <= 0 or amount > self._balance:\n            print(\"Withdrawal not possible.\")\n            return\n        self._balance -= amount\n        self._transactions.append(f\"withdraw {amount}\")\n\n    def print_statement(self):\n        for t in self._transactions:\n            print(t)",
+    "tests": "a = Account(\"Ada\", 100)\na.deposit(50); a.withdraw(20); _capture(a.withdraw, 1000); a.deposit(-5)\nassert a._balance == 130, f\"Stand sollte 130 sein, ist {a._balance}.\"\nassert _capture(a.print_statement).split(\"\\n\")[:2] == [\"deposit 50\", \"withdraw 20\"] and len(_capture(a.print_statement).strip().split(\"\\n\")) == 2, \"Kontoauszug soll genau die zwei gültigen Buchungen zeigen: deposit 50, withdraw 20.\"\nb = Account(\"Bob\")\nassert b._transactions == [], \"Jedes Konto braucht eine eigene Buchungsliste.\""
+   },
+   {
+    "id": "a08-c",
+    "type": "py",
+    "task": "<span class=\"tag\">Teil D – Experte</span> <code>transfer(self, target, amount)</code>: bucht vom eigenen Konto ab und zahlt beim Zielkonto ein – <b>ganz oder gar nicht</b>. Bei ungültigem Betrag (≤ 0) oder fehlender Deckung bleiben <b>beide</b> Konten unverändert (Meldung ausgeben). Liefert <code>True</code> bei Erfolg, sonst <code>False</code>.",
+    "starter": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def transfer(self, target, amount):\n        ",
+    "hint": "Zuerst prüfen: if amount <= 0 or amount > self._balance: print(...); return False. Erst dann self._balance -= amount; target._balance += amount; return True",
+    "solution": "class Account:\n    def __init__(self, owner, balance=0):\n        self.owner = owner\n        self._balance = balance\n\n    def transfer(self, target, amount):\n        # check everything first, then book both sides -> all or nothing\n        if amount <= 0 or amount > self._balance:\n            print(\"Transfer not possible.\")\n            return False\n        self._balance -= amount\n        target._balance += amount\n        return True",
+    "tests": "a = Account(\"Ada\", 100); b = Account(\"Bob\", 10)\nassert a.transfer(b, 30) is True, \"Gültige Überweisung soll True liefern.\"\nassert (a._balance, b._balance) == (70, 40), f\"Nach 30 €: Ada 70, Bob 40 – ist {a._balance}, {b._balance}.\"\nfor bad in (500, -5, 0):\n    res = [None]\n    out = _capture(lambda: res.__setitem__(0, a.transfer(b, bad)))\n    assert res[0] is False, f\"transfer({bad}) soll False liefern.\"\n    assert (a._balance, b._balance) == (70, 40), f\"Nach transfer({bad}) dürfen sich die Stände nicht ändern.\""
+   },
+   {
+    "id": "a08-d",
+    "type": "quiz",
+    "task": "Was bewirkt <code>if __name__ == \"__main__\":</code>?",
+    "options": [
+     "Der Code darunter läuft immer zuerst",
+     "Der Code darunter läuft nur, wenn die Datei direkt gestartet wird – nicht, wenn sie importiert wird",
+     "Es definiert die Hauptklasse",
+     "Es ist nur ein Kommentar"
+    ],
+    "correct": 1,
+    "explain": "Beim Import ist __name__ der Modulname, nicht \"__main__\"."
+   },
+   {
+    "id": "a08-e",
+    "type": "reflect",
+    "task": "<span class=\"tag\">Teil D</span> Sollen zwei Konten mit gleichem Inhaber und gleichem Stand als <b>gleich</b> (<code>==</code>) gelten – oder sollten Konten nie gleich sein? Begründe deine Position in 2–3 Sätzen.",
+    "sample": "Für „nie gleich“: Ein Konto ist ein eigenes Ding mit eigener Identität (z. B. IBAN) – zwei verschiedene Konten von Ada mit zufällig 100 € sind trotzdem zwei Konten; verwechselt man sie, kann falsch gebucht werden. Für „gleich bei gleichen Werten“: Für Tests und Vergleiche von Zuständen ist es praktisch, wenn == die Inhalte vergleicht. Beides ist vertretbar – entscheidend ist eine begründete Wahl."
    }
   ]
  },
