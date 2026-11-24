@@ -13,6 +13,8 @@ Der Lernfortschritt wird im Browser gespeichert (localStorage).
 
 ## Login & Fortschritt im Konto (Supabase)
 
+Eingerichtet ist das Supabase-Projekt **lern-site** (Region eu-central-1). Die Zugangsdaten stehen in `config.js`. So richtet man es neu ein:
+
 1. Auf supabase.com ein (kostenloses) Projekt anlegen.
 2. Im **SQL Editor** den Inhalt von `supabase-setup.sql` ausführen. Das legt die Tabelle `progress` mit Row Level Security an.
 3. Unter **Project Settings → API** die **Project URL** und den **anon/publishable key** kopieren und in `config.js` eintragen.

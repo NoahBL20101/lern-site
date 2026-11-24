@@ -11,12 +11,12 @@ alter table public.progress enable row level security;
 -- Jeder darf nur seine eigene Zeile sehen und ändern.
 drop policy if exists "progress_select_own" on public.progress;
 create policy "progress_select_own" on public.progress
-  for select using (auth.uid() = user_id);
+  for select to authenticated using ((select auth.uid()) = user_id);
 
 drop policy if exists "progress_insert_own" on public.progress;
 create policy "progress_insert_own" on public.progress
-  for insert with check (auth.uid() = user_id);
+  for insert to authenticated with check ((select auth.uid()) = user_id);
 
 drop policy if exists "progress_update_own" on public.progress;
 create policy "progress_update_own" on public.progress
-  for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);

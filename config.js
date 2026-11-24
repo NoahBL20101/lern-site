@@ -1,7 +1,6 @@
-// Supabase-Zugangsdaten für Login & Fortschritt-Speicherung.
-// Zu finden im Supabase-Dashboard unter Project Settings → API (bzw. "Connect").
-// Der anon/publishable Key ist öffentlich gedacht – die Daten schützt Row Level Security (siehe supabase-setup.sql).
+// Supabase-Zugangsdaten für Login & Fortschritt-Speicherung (Projekt "lern-site").
+// Der publishable Key ist öffentlich gedacht – die Daten schützt Row Level Security (siehe supabase-setup.sql).
 window.SUPABASE_CONFIG = {
-  url: '',      // z. B. 'https://abcdefghijklm.supabase.co'
-  anonKey: '',  // z. B. 'eyJhbGciOi...' oder 'sb_publishable_...'
+  url: 'https://riqusmvmivxthxiwnfvm.supabase.co',
+  anonKey: 'sb_publishable_Ln8Q0HRfbo5lILoaVHNDWQ_P5gAzATg',
 };
