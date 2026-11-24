@@ -258,6 +258,16 @@ h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
 .triangle .t-left{left:0;top:215px}
 .triangle .t-right{right:0;top:215px}
 @media (max-width:900px){.ord-cols,.phases{grid-template-columns:1fr}}
+.acct-user{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);font-size:12.5px}
+.acct-st{font-size:11.5px;margin-top:2px}
+.modal{display:none;position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:16px}
+.modal.open{display:flex}
+.modal-box{width:100%;max-width:400px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#authForm label{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
+#authForm input{display:block;width:100%;margin-top:4px;padding:9px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:15px;font-family:var(--sans);outline:none}
+#authForm input:focus{border-color:var(--accent2)}
+#authSubmit{width:100%;margin-top:4px;padding:10px}
 .menu-btn{display:none}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
@@ -272,6 +282,17 @@ h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
 </style>
 </head>
 <body>
+<div class="modal" id="authModal"><div class="modal-box">
+  <div class="modal-head"><div class="sw-modes" id="authTabs"><button data-t="login" class="on">Anmelden</button><button data-t="signup">Registrieren</button></div><button class="sw-x" id="authClose">✕</button></div>
+  <form id="authForm" autocomplete="on">
+    <label>E-Mail<input id="authEmail" type="email" autocomplete="email" required></label>
+    <label>Passwort<input id="authPw" type="password" autocomplete="current-password" minlength="6" required></label>
+    <label id="authPw2Row" style="display:none">Passwort wiederholen<input id="authPw2" type="password" autocomplete="new-password" minlength="6"></label>
+    <button class="primary" id="authSubmit" type="submit">Anmelden</button>
+    <div class="feedback" id="authFb"></div>
+    <p class="muted" style="font-size:12.5px;margin:8px 0 0">Mit einem Konto wird dein Fortschritt (gelöste Übungen und dein Code) gespeichert – auf jedem Gerät und in jedem Browser derselbe.</p>
+  </form>
+</div></div>
 <div class="loading" id="loading"><div><div class="spin"></div><span id="loadmsg">SQL-Engine wird geladen …</span></div></div>
 <div class="app">
   <aside class="side" id="side">
@@ -280,7 +301,7 @@ h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
     <div class="overall"><div id="overallBar"></div></div>
     <div class="overall-label" id="overallLabel"></div>
     <ul class="nav" id="nav"></ul>
-    <div class="side-foot">Fortschritt wird in diesem Browser gespeichert.<br><button id="resetProgress" class="ghost" style="margin-top:6px">Fortschritt zurücksetzen</button></div>
+    <div class="side-foot"><div id="acct"></div><button id="resetProgress" class="ghost" style="margin-top:6px">Fortschritt zurücksetzen</button></div>
   </aside>
   <main class="main" id="main">
     <button class="menu-btn" id="menuBtn">☰ Kapitel</button>
@@ -298,6 +319,8 @@ h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
     <ol class="sw-laps" id="swLaps"></ol>
   </div>
 </div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="sql-asm.js"></script>
 <script src="content.js"></script>
 <script src="sew-content.js"></script>
@@ -315,7 +338,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const KEY = 'insy-sql-lernen-v1';
 let store = {done:{}, peek:{}, code:{}, last:null};
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) store = Object.assign(store, s); } catch(e) {}
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} if (window.cloudSave) window.cloudSave(); }
 
 /* ---------- SQL engine ---------- */
 let SQL = null; const DB = {}; const loadingDB = {};
@@ -1377,6 +1400,122 @@ function renderPyPlay(){
   $('#swMin').onchange = () => { const v = Math.max(1, Math.min(300, +$('#swMin').value || 50)); st.total = v * 60000; reset(); save(); render(); };
   $('#swMin').value = Math.round(st.total / 60000);
   setInterval(render, 250); render();
+})();
+
+
+/* ---------- account (Supabase) ---------- */
+(function(){
+  const cfg = window.SUPABASE_CONFIG || {};
+  const acct = $('#acct');
+  const configured = !!(cfg.url && cfg.anonKey);
+  let sb = null, user = null, timer = null, syncing = false, status = '';
+  if (!configured) { acct.innerHTML = '<span>Fortschritt wird in diesem Browser gespeichert.</span><div class="muted" style="font-size:11px;margin-top:4px">Login: Supabase in <code>config.js</code> eintragen.</div>'; return; }
+  if (!window.supabase) { acct.innerHTML = '<span>Fortschritt wird in diesem Browser gespeichert.</span><div class="muted" style="font-size:11px;margin-top:4px">Login nicht verfügbar (kein Internet?).</div>'; return; }
+  sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+
+  const DE = m => {
+    m = String(m || '');
+    if (/Invalid login credentials/i.test(m)) return 'E-Mail oder Passwort ist falsch.';
+    if (/Email not confirmed/i.test(m)) return 'Bitte bestätige zuerst deine E-Mail-Adresse (Link in der Bestätigungs-Mail).';
+    if (/User already registered|already been registered/i.test(m)) return 'Für diese E-Mail gibt es schon ein Konto – melde dich an.';
+    if (/Password should be at least/i.test(m)) return 'Das Passwort muss mindestens 6 Zeichen haben.';
+    if (/rate limit/i.test(m)) return 'Zu viele Versuche – bitte kurz warten.';
+    if (/valid email|invalid format/i.test(m)) return 'Bitte gib eine gültige E-Mail-Adresse ein.';
+    if (/Failed to fetch|NetworkError/i.test(m)) return 'Keine Verbindung zum Server – bist du online?';
+    return m;
+  };
+  function renderAcct(){
+    if (user) acct.innerHTML = `<div class="acct-user">👤 <b title="${esc(user.email)}">${esc(user.email)}</b></div><div class="acct-st">${status}</div><button id="btnLogout" class="ghost" style="margin-top:6px">Abmelden</button>`;
+    else acct.innerHTML = `<span>Fortschritt nur in diesem Browser.</span><br><button id="btnLogin" class="primary" style="margin-top:6px">Anmelden / Registrieren</button>`;
+    const lo = $('#btnLogout'); if (lo) lo.onclick = logout;
+    const li = $('#btnLogin'); if (li) li.onclick = () => openModal('login');
+  }
+  const setStatus = t => { status = t; const el = acct.querySelector('.acct-st'); if (el) el.innerHTML = t; };
+
+  // --- sync ---
+  function merge(remote, local){
+    const r = remote || {};
+    return {
+      done: Object.assign({}, local.done || {}, r.done || {}),
+      peek: Object.assign({}, local.peek || {}, r.peek || {}),
+      code: Object.assign({}, local.code || {}, r.code || {}),
+      last: local.last || r.last || null,
+    };
+  }
+  async function pull(){
+    setStatus('☁️ lädt …');
+    const { data, error } = await sb.from('progress').select('data').eq('user_id', user.id).maybeSingle();
+    if (error) { setStatus('⚠️ ' + esc(DE(error.message))); return; }
+    store = merge(data ? data.data : null, store);
+    try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+    route();
+    await push();
+  }
+  async function push(){
+    if (!user) return;
+    syncing = true; setStatus('☁️ speichert …');
+    const { error } = await sb.from('progress').upsert({ user_id: user.id, data: store, updated_at: new Date().toISOString() });
+    syncing = false;
+    setStatus(error ? '⚠️ nicht gespeichert: ' + esc(DE(error.message)) : '☁️ im Konto gespeichert');
+  }
+  window.cloudSave = () => { if (!user) return; setStatus('☁️ …'); clearTimeout(timer); timer = setTimeout(push, 1200); };
+  window.addEventListener('beforeunload', () => { if (user && timer) { clearTimeout(timer); push(); } });
+
+  async function logout(){
+    clearTimeout(timer); if (user) await push();
+    await sb.auth.signOut();
+  }
+
+  // --- modal ---
+  let mode = 'login';
+  function openModal(m){ mode = m; $('#authModal').classList.add('open'); setMode(m); setTimeout(() => $('#authEmail').focus(), 30); }
+  function closeModal(){ $('#authModal').classList.remove('open'); $('#authFb').className = 'feedback'; }
+  function setMode(m){
+    mode = m;
+    document.querySelectorAll('#authTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === m));
+    $('#authPw2Row').style.display = m === 'signup' ? '' : 'none';
+    $('#authPw2').required = m === 'signup';
+    $('#authPw').autocomplete = m === 'signup' ? 'new-password' : 'current-password';
+    $('#authSubmit').textContent = m === 'signup' ? 'Konto erstellen' : 'Anmelden';
+    $('#authFb').className = 'feedback';
+  }
+  document.querySelectorAll('#authTabs button').forEach(b => b.onclick = () => setMode(b.dataset.t));
+  $('#authClose').onclick = closeModal;
+  $('#authModal').addEventListener('click', e => { if (e.target.id === 'authModal') closeModal(); });
+  $('#authForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fb = (c, h) => { const f = $('#authFb'); f.className = 'feedback show ' + c; f.innerHTML = h; };
+    const email = $('#authEmail').value.trim(), pw = $('#authPw').value;
+    if (mode === 'signup' && pw !== $('#authPw2').value) { fb('err', 'Die Passwörter stimmen nicht überein.'); return; }
+    $('#authSubmit').disabled = true; fb('info', mode === 'signup' ? 'Konto wird erstellt …' : 'Anmelden …');
+    try {
+      if (mode === 'signup') {
+        const opts = /^https?:/.test(location.protocol) ? { emailRedirectTo: location.origin + location.pathname } : {};
+        const { data, error } = await sb.auth.signUp({ email, password: pw, options: opts });
+        if (error) fb('err', esc(DE(error.message)));
+        else if (data.session) { fb('ok', '✅ Konto erstellt – du bist angemeldet.'); setTimeout(closeModal, 800); }
+        else if (data.user && data.user.identities && data.user.identities.length === 0) fb('err', 'Für diese E-Mail gibt es schon ein Konto – melde dich an.');
+        else fb('ok', '📧 Fast fertig! Wir haben dir eine Bestätigungs-Mail geschickt. Klick auf den Link darin und melde dich dann hier an.');
+      } else {
+        const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+        if (error) fb('err', esc(DE(error.message)));
+        else { fb('ok', '✅ Angemeldet.'); setTimeout(closeModal, 500); }
+      }
+    } catch(err) { fb('err', esc(DE(err.message))); }
+    $('#authSubmit').disabled = false;
+  });
+
+  sb.auth.onAuthStateChange((event, session) => {
+    const u = session ? session.user : null;
+    if (u && (!user || user.id !== u.id)) { user = u; renderAcct(); pull(); }
+    else if (!u && user) {
+      user = null; status = '';
+      store = {done:{}, peek:{}, code:{}, last:null};
+      try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {}
+      renderAcct(); route();
+    }
+  });
+  renderAcct();
 })();
 
 /* ---------- boot ---------- */
