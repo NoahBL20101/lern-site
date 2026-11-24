@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL lernen – INSY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1115; --panel:#161922; --panel2:#1c2030; --line:#2a2f42; --text:#e6e8ef; --muted:#9aa1b5;
+  --accent:#4fd1a5; --accent2:#7aa7ff; --warn:#ffb454; --err:#ff6b6b; --ok:#4fd1a5;
+  --kw:#7aa7ff; --fn:#e2a1ff; --str:#a5e075; --num:#ffb454; --cm:#6b7389;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace; --sans:'IBM Plex Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.55}
+a{color:var(--accent2)}
+code{font-family:var(--mono);font-size:.88em;background:var(--panel2);padding:1px 5px;border-radius:4px;color:#cfe3ff}
+button{font-family:inherit;font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:8px 14px;transition:background .15s,border-color .15s}
+button:hover{border-color:var(--accent2)}
+button.primary{background:var(--accent);color:#0b1712;border-color:var(--accent);font-weight:600}
+button.primary:hover{filter:brightness(1.08)}
+button.blue{background:var(--accent2);border-color:var(--accent2);color:#0b1020;font-weight:600}
+button.ghost{background:transparent}
+button:disabled{opacity:.45;cursor:default}
+.app{display:grid;grid-template-columns:270px 1fr;height:100vh}
+/* sidebar */
+.side{background:var(--panel);border-right:1px solid var(--line);overflow:auto;display:flex;flex-direction:column}
+.brand{padding:18px 18px 10px}
+.brand h1{font-size:18px;margin:0;letter-spacing:.2px}
+.brand .sub{color:var(--muted);font-size:12.5px}
+.overall{margin:6px 18px 12px;height:6px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.overall>div{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width .4s}
+.overall-label{margin:-6px 18px 10px;font-size:12px;color:var(--muted)}
+.nav{list-style:none;margin:0;padding:0 10px 20px;counter-reset:n}
+.nav li{margin:2px 0}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;color:var(--text);text-decoration:none;font-size:14px}
+.nav a:hover{background:var(--panel2)}
+.nav a.active{background:var(--panel2);box-shadow:inset 3px 0 0 var(--accent)}
+.nav .num{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.nav .done .num{background:var(--accent);color:#0b1712;border-color:var(--accent)}
+.nav .meta{margin-left:auto;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
+.nav .sep{height:1px;background:var(--line);margin:10px 8px}
+.side-foot{margin-top:auto;padding:12px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+.side-foot button{font-size:12px;padding:4px 8px}
+/* main */
+.main{overflow:auto;position:relative}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 32px 80px}
+.crumbs{color:var(--muted);font-size:13px;margin-bottom:4px}
+h2.title{font-size:28px;margin:0 0 6px}
+.source{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.tabs button{border:none;border-radius:8px 8px 0 0;background:transparent;color:var(--muted);padding:10px 16px;font-weight:600}
+.tabs button.on{color:var(--text);background:var(--panel);box-shadow:inset 0 -2px 0 var(--accent)}
+.theory{max-width:860px}
+.theory h3{font-size:19px;margin:28px 0 8px;color:#fff}
+.theory h3:first-child{margin-top:0}
+.theory ul,.theory ol{padding-left:22px}
+.muted{color:var(--muted)}
+.callout{background:rgba(122,167,255,.08);border:1px solid rgba(122,167,255,.3);padding:10px 14px;border-radius:10px}
+.tip{background:rgba(255,180,84,.07);border-left:3px solid var(--warn);padding:8px 12px;border-radius:0 8px 8px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card.hl{border-color:var(--accent)}
+pre.syntax{font-family:var(--mono);font-size:13.5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;white-space:pre}
+pre.syntax.bad{border-color:rgba(255,107,107,.5)}
+table.ops{border-collapse:collapse;margin:8px 0;width:100%}
+table.ops td{border:1px solid var(--line);padding:7px 10px;vertical-align:top}
+ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:6px;max-width:560px}
+ol.steps li{counter-increment:s;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+ol.steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--accent2);color:#0b1020;font-weight:700;display:grid;place-items:center;font-size:13px}
+ol.steps li code{font-size:14px;min-width:92px;text-align:center}
+ol.steps li span{color:var(--muted);font-size:13.5px}
+.example-box{margin:12px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.example-box .bar{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;background:var(--panel2);font-size:12px;color:var(--muted)}
+.example-box .bar .db{font-family:var(--mono)}
+.example-box .bar button{margin-left:auto;padding:4px 10px;font-size:12.5px}
+.example-box pre{margin:0;padding:12px 14px;font-family:var(--mono);font-size:13.5px;white-space:pre-wrap}
+.example-box .out{border-top:1px solid var(--line)}
+.next-row{margin-top:30px;display:flex;gap:10px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11.5px;background:var(--accent2);color:#0b1020;padding:1px 7px;border-radius:5px;margin-right:6px;font-weight:600;vertical-align:1px}
+/* practice */
+.practice{display:grid;grid-template-columns:1fr 260px;gap:18px;align-items:start}
+.ex-strip{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ex-strip button{width:34px;height:34px;padding:0;border-radius:9px;font-family:var(--mono);font-size:13px}
+.ex-strip button.on{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(122,167,255,.35)}
+.ex-strip button.done{background:var(--accent);color:#0b1712;border-color:var(--accent);font-weight:700}
+.ex-strip button.peek{background:var(--warn);color:#1a1205;border-color:var(--warn);font-weight:700}
+.task{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.task .head{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.task .head .db{font-family:var(--mono);background:var(--panel2);padding:1px 7px;border-radius:5px;color:var(--text)}
+.task .text{font-size:16px}
+.task .note{margin-top:8px;font-size:13px;color:var(--warn)}
+.editor{position:relative;border:1px solid var(--line);border-radius:12px;background:#0b0d12;min-height:170px;overflow:hidden}
+.editor:focus-within{border-color:var(--accent2)}
+.editor pre,.editor textarea{margin:0;border:0;padding:14px 16px 14px 52px;font-family:var(--mono);font-size:14.5px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:break-word;tab-size:2;letter-spacing:0}
+.editor pre{position:absolute;inset:0;pointer-events:none;color:var(--text);overflow:hidden}
+.editor textarea{position:relative;display:block;width:100%;min-height:170px;resize:vertical;background:transparent;color:transparent;caret-color:#fff;outline:none;overflow:auto}
+.editor textarea::placeholder{color:#4a5168}
+.editor .gutter{position:absolute;left:0;top:0;bottom:0;width:40px;padding:14px 0;text-align:right;color:#3d4459;font-family:var(--mono);font-size:14.5px;line-height:1.6;border-right:1px solid #1a1e2a;pointer-events:none;overflow:hidden}
+.editor .gutter div{padding-right:8px}
+.kw{color:var(--kw);font-weight:600}.fn{color:var(--fn)}.st{color:var(--str)}.nu{color:var(--num)}.cm{color:var(--cm);font-style:italic}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.actions .spacer{flex:1}
+.kbd{font-family:var(--mono);font-size:11px;opacity:.7;margin-left:4px}
+.feedback{border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14.5px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(79,209,165,.12);border:1px solid rgba(79,209,165,.5)}
+.feedback.err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.45)}
+.feedback.info{background:rgba(122,167,255,.08);border:1px solid rgba(122,167,255,.35)}
+.feedback.warn{background:rgba(255,180,84,.09);border:1px solid rgba(255,180,84,.45)}
+.feedback .next{margin-top:8px}
+.hintbox,.solbox{margin:10px 0;padding:10px 14px;border-radius:10px;background:var(--panel);border:1px dashed var(--line);display:none}
+.hintbox.show,.solbox.show{display:block}
+.solbox pre{margin:6px 0 0;font-family:var(--mono);font-size:13.5px;white-space:pre-wrap}
+.result{margin-top:8px}
+.meta{font-size:12.5px;color:var(--muted);margin:6px 2px;display:flex;gap:10px;align-items:center}
+.tbl{overflow:auto;max-height:380px;border:1px solid var(--line);border-radius:10px}
+.tbl table{border-collapse:collapse;font-family:var(--mono);font-size:12.5px;width:max-content;min-width:100%}
+.tbl th{position:sticky;top:0;background:var(--panel2);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);font-weight:600;color:#cfe3ff}
+.tbl td{padding:5px 10px;border-bottom:1px solid #1d2130;white-space:nowrap;max-width:420px;overflow:hidden;text-overflow:ellipsis}
+.tbl tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+.tbl td.null{color:var(--cm);font-style:italic}
+.tbl td.n{text-align:right;color:var(--num)}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.compare h4{margin:10px 0 4px;font-size:13px;color:var(--muted);font-weight:600}
+/* schema */
+.schema{position:sticky;top:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 6px 10px 12px;max-height:calc(100vh - 40px);overflow:auto;font-size:13px}
+.schema h4{margin:2px 0 8px;font-size:13px;display:flex;justify-content:space-between;align-items:center;padding-right:6px}
+.schema h4 span{font-family:var(--mono);color:var(--accent)}
+.schema details{margin:1px 0}
+.schema summary{cursor:pointer;font-family:var(--mono);padding:3px 4px;border-radius:5px;list-style:none;display:flex;gap:6px}
+.schema summary::-webkit-details-marker{display:none}
+.schema summary::before{content:'▸';color:var(--muted)}
+.schema details[open] summary::before{content:'▾'}
+.schema summary:hover{background:var(--panel2)}
+.schema summary .cnt{margin-left:auto;color:var(--muted);font-size:11px;padding-right:4px}
+.schema .cols{padding:2px 0 6px 18px}
+.schema .cols span{display:block;font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;padding:1px 4px;border-radius:4px}
+.schema .cols span:hover{color:var(--text);background:var(--panel2)}
+.schema .ins{font-size:11px;color:var(--accent2);cursor:pointer;margin-left:4px}
+.loading{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);z-index:50;font-size:15px;color:var(--muted)}
+.loading .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:18px}
+.home-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .15s,transform .15s}
+.home-card:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.home-card .n{font-family:var(--mono);color:var(--muted);font-size:12px}
+.home-card h3{margin:2px 0 6px;font-size:16.5px}
+.home-card .bar{height:5px;background:var(--panel2);border-radius:9px;overflow:hidden;margin-top:10px}
+.home-card .bar div{height:100%;background:var(--accent)}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 4px}
+.how div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+.how b{display:block;margin-bottom:3px}
+.quiz-opts{display:grid;gap:8px;margin:12px 0}
+.quiz-opts button{text-align:left;padding:12px 14px;font-size:15px;border-radius:10px}
+.quiz-opts button.right{background:rgba(79,209,165,.15);border-color:var(--ok)}
+.quiz-opts button.wrong{background:rgba(255,107,107,.12);border-color:var(--err)}
+.predict-q{background:#0b0d12;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-family:var(--mono);font-size:14.5px;white-space:pre-wrap;margin:0}
+.predict-in{display:flex;gap:8px;align-items:center;margin:12px 0}
+.predict-in input{width:120px;font-family:var(--mono);font-size:16px;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--text)}
+.typebadge{font-size:11.5px;padding:1px 7px;border-radius:5px;background:var(--panel2);color:var(--warn);font-weight:600}
+table.part{border-collapse:separate;border-spacing:3px;margin-top:10px}
+table.part td{width:38px;height:14px;background:var(--panel2);border-radius:3px}
+table.part tr.on td,table.part td.on{background:var(--accent)}
+.subj{display:flex;gap:6px;margin:14px 14px 0;padding:4px;background:var(--bg);border:1px solid var(--line);border-radius:11px}
+.subj button{flex:1;border:none;background:transparent;color:var(--muted);font-weight:600;padding:7px 6px;border-radius:8px}
+.subj button.on{background:var(--panel2);color:var(--text);box-shadow:inset 0 -2px 0 var(--accent)}
+body[data-subj="sew"] .subj button.on{box-shadow:inset 0 -2px 0 var(--accent2)}
+pre.pyout{margin:0;background:#0b0d12;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-family:var(--mono);font-size:13.5px;white-space:pre-wrap;max-height:360px;overflow:auto}
+.stdin-row{margin:10px 0}
+.stdin-row label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+.stdin-row textarea{width:100%;font-family:var(--mono);font-size:14px;background:#0b0d12;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 12px;resize:vertical;outline:none}
+.stdin-row textarea:focus{border-color:var(--accent2)}
+.stack{display:flex;flex-direction:column;gap:4px;max-width:380px;margin:12px 0;font-family:var(--mono);font-size:13px}
+.stack .fr{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px}
+.stack .fr.run{border-color:var(--accent);background:rgba(79,209,165,.1)}
+.stack .cap{font-family:var(--sans);font-size:12px;color:var(--muted);text-align:center;margin-top:2px}
+pre.tree{line-height:1.45}
+.hanoi{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:520px;margin:12px 0}
+.hanoi .peg{height:120px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;border-bottom:3px solid var(--muted);position:relative;padding-bottom:4px}
+.hanoi .peg::before{content:'';position:absolute;bottom:0;top:6px;width:4px;background:var(--line);border-radius:2px;z-index:0}
+.hanoi .peg span{height:16px;background:var(--accent2);border-radius:5px;z-index:1}
+.hanoi .peg b{position:absolute;bottom:-24px;font-size:13px;color:var(--muted)}
+.nav li.grp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px;font-weight:600}
+.nav .num.wide{font-size:10.5px}
+h3.grp-h{margin:26px 0 0;font-size:15px;color:var(--muted);letter-spacing:.03em}
+.trace-box{margin:14px 0;border:1px solid var(--accent2);border-radius:12px;overflow:hidden;background:var(--panel)}
+.trace-box .bar{display:flex;align-items:center;gap:8px;padding:7px 8px 7px 12px;background:rgba(122,167,255,.1);font-size:12.5px;color:var(--muted)}
+.trace-box .bar .db{font-family:var(--mono);color:var(--text)}
+.trace-box .bar button{margin-left:auto;padding:5px 12px;font-size:13px}
+.trace-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:0}
+.trace-code{margin:0;padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;border-right:1px solid var(--line);background:#0b0d12}
+.trace-live{padding:10px 12px}
+.trace-cap{background:var(--panel2);border-radius:8px;padding:8px 10px;font-size:13.5px;margin-bottom:8px;min-height:44px}
+.trace-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.trace-cols .lbl{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.tstack{margin:0;max-width:none}
+.tstack .fr{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:6px 10px}
+.tstack .fr .st8{color:var(--muted);font-family:var(--sans);font-size:11.5px;white-space:nowrap}
+.tstack .fr.run .st8{color:var(--accent)}
+.trace-live pre.pyout{max-height:200px;font-size:12.5px}
+.trace-ctl{display:flex;align-items:center;gap:6px;margin-top:10px;flex-wrap:wrap}
+.trace-ctl button{padding:5px 10px;font-size:13px}
+.trace-ctl .cnt{font-size:12.5px;color:var(--muted);font-family:var(--mono);padding:0 6px}
+.hanoi.sm{gap:6px;max-width:none;margin:6px 0 0}
+.hanoi.sm .peg{height:60px}
+.hanoi.sm .peg span{height:10px}
+.hanoi-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0;font-size:12.5px}
+.hanoi-steps>div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+@media (max-width:900px){.trace-grid,.trace-cols,.hanoi-steps{grid-template-columns:1fr}.trace-code{border-right:none;border-bottom:1px solid var(--line)}}
+.mopt{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);cursor:pointer;font-size:15px}
+.mopt input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent2);flex:0 0 auto}
+.mopt.right{border-color:var(--ok);background:rgba(79,209,165,.12)}
+.mopt.wrong{border-color:var(--err);background:rgba(255,107,107,.12)}
+.exam-rules td{font-size:14px}
+.sw{position:fixed;right:18px;bottom:18px;z-index:60;font-family:var(--sans)}
+.sw-pill{border-radius:999px;padding:9px 16px;background:var(--panel);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.4);font-weight:600;font-family:var(--mono);font-size:14px}
+.sw-pill.run{border-color:var(--accent);color:var(--accent)}
+.sw-pill.alarm{border-color:var(--err);color:var(--err);animation:swb 1s infinite}
+@keyframes swb{50%{opacity:.4}}
+.sw-panel{display:none;position:absolute;right:0;bottom:52px;width:320px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.sw.open .sw-panel{display:block}
+.sw-head{display:flex;justify-content:space-between;align-items:center}
+.sw-modes{display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:9px;border:1px solid var(--line)}
+.sw-modes button{border:none;background:transparent;padding:5px 10px;font-size:13px;color:var(--muted)}
+.sw-modes button.on{background:var(--panel2);color:var(--text)}
+.sw-x{border:none;background:transparent;color:var(--muted);padding:4px 8px}
+.sw-time{font-family:var(--mono);font-size:44px;font-weight:600;text-align:center;margin:10px 0 6px;letter-spacing:1px}
+.sw-time.alarm{color:var(--err)}
+.sw-presets{display:none;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:8px}
+.sw.down .sw-presets{display:flex}
+.sw-presets button{padding:4px 9px;font-size:12.5px}
+.sw-custom{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.sw-custom input{width:56px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:3px 6px;font-family:var(--mono)}
+.sw-ctl{display:flex;gap:6px;justify-content:center}
+.sw-ctl button{padding:6px 11px;font-size:13px}
+.sw.down #swLap{display:none}
+.sw-laps{max-height:120px;overflow:auto;margin:8px 0 0;padding-left:26px;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+@media print{.sw{display:none}}
+.ord-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+.ord-cols .lbl{font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.ord-list{display:flex;flex-direction:column;gap:6px;margin:0;min-height:60px;background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:8px}
+.ord-pick{padding-left:30px}
+.ord-list button{width:100%;text-align:left;padding:9px 12px;font-size:14.5px}
+.ord-list button.right{border-color:var(--ok);background:rgba(79,209,165,.12)}
+.ord-list button.wrong{border-color:var(--err);background:rgba(255,107,107,.12)}
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+.phases div{background:var(--panel);border:1px solid var(--accent2);border-radius:10px;padding:10px;text-align:center;position:relative}
+.phases div span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.triangle{position:relative;max-width:520px;height:260px;margin:14px auto}
+.triangle::before{content:'';position:absolute;left:50%;top:40px;transform:translateX(-50%);width:0;height:0;border-left:170px solid transparent;border-right:170px solid transparent;border-bottom:170px solid rgba(122,167,255,.15)}
+.triangle>div{position:absolute;text-align:center;font-weight:600;font-size:14px}
+.triangle span{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.triangle .t-top{left:50%;top:0;transform:translateX(-50%)}
+.triangle .t-mid{left:50%;top:130px;transform:translateX(-50%);color:var(--accent2)}
+.triangle .t-left{left:0;top:215px}
+.triangle .t-right{right:0;top:215px}
+@media (max-width:900px){.ord-cols,.phases{grid-template-columns:1fr}}
+.menu-btn{display:none}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 25% 0 0;z-index:40;transform:translateX(-102%);transition:transform .2s}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}
+  .menu-btn{display:inline-block;position:sticky;top:8px;left:8px;z-index:30;margin:8px}
+  .wrap{padding:8px 16px 60px}
+  .practice{grid-template-columns:1fr}
+  .schema{position:static;max-height:none}
+  .grid2,.how,.compare{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="loading" id="loading"><div><div class="spin"></div><span id="loadmsg">SQL-Engine wird geladen …</span></div></div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="subj"><button id="subjInsy" class="on">🗄️ INSY</button><button id="subjSew">🐍 SEW</button><button id="subjItp">📋 ITP</button></div>
+    <div class="brand"><h1 id="brandTitle">SQL lernen</h1><div class="sub" id="brandSub">INSY · 3. Jahrgang · SELECT bis JOIN</div></div>
+    <div class="overall"><div id="overallBar"></div></div>
+    <div class="overall-label" id="overallLabel"></div>
+    <ul class="nav" id="nav"></ul>
+    <div class="side-foot">Fortschritt wird in diesem Browser gespeichert.<br><button id="resetProgress" class="ghost" style="margin-top:6px">Fortschritt zurücksetzen</button></div>
+  </aside>
+  <main class="main" id="main">
+    <button class="menu-btn" id="menuBtn">☰ Kapitel</button>
+    <div class="wrap" id="view"></div>
+  </main>
+</div>
+
+<div class="sw" id="sw">
+  <button class="sw-pill" id="swPill" title="Stoppuhr">⏱️ <span id="swPillTime">Stoppuhr</span></button>
+  <div class="sw-panel" id="swPanel">
+    <div class="sw-head"><div class="sw-modes"><button data-m="up" class="on">Stoppuhr</button><button data-m="down">Countdown</button></div><button class="sw-x" id="swClose" title="Schließen">✕</button></div>
+    <div class="sw-time" id="swTime">00:00</div>
+    <div class="sw-presets" id="swPresets"><button data-min="10">10 min</button><button data-min="25">25 min</button><button data-min="50">50 min · Test</button><span class="sw-custom"><input id="swMin" type="number" min="1" max="300" value="50"> min</span></div>
+    <div class="sw-ctl"><button class="primary" id="swStart">▶ Start</button><button id="swReset">↺ Zurücksetzen</button><button id="swLap">⚑ Runde</button></div>
+    <ol class="sw-laps" id="swLaps"></ol>
+  </div>
+</div>
+<script src="sql-asm.js"></script>
+<script src="content.js"></script>
+<script src="sew-content.js"></script>
+<script src="itp-content.js"></script>
+<script>
+(function(){
+'use strict';
+const INSY = window.LESSONS, SEW = window.SEW_LESSONS || [], ITP = window.ITP_LESSONS || [];
+let SUBJ = 'insy', L = INSY;
+function setSubject(x){ SUBJ = x; L = x === 'sew' ? SEW : x === 'itp' ? ITP : INSY; document.body.dataset.subj = x; try { localStorage.setItem('insy-sew-subj', x); } catch(e) {} }
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- storage ---------- */
+const KEY = 'insy-sql-lernen-v1';
+let store = {done:{}, peek:{}, code:{}, last:null};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) store = Object.assign(store, s); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
+
+/* ---------- SQL engine ---------- */
+let SQL = null; const DB = {}; const loadingDB = {};
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Konnte ' + src + ' nicht laden')); document.head.appendChild(s); }); }
+async function gunzipB64(b64){
+  const bin = atob(b64); const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  const ds = new DecompressionStream('gzip');
+  const buf = await new Response(new Blob([u]).stream().pipeThrough(ds)).arrayBuffer();
+  return new Uint8Array(buf);
+}
+const RAW = {};
+function addFunctions(db){
+  const fn = (name, n, f) => { Object.defineProperty(f, 'length', {value:n}); db.create_function(name, f); };
+  const S = v => v == null ? null : String(v);
+  fn('left', 2, (s, n) => s == null ? null : S(s).slice(0, n));
+  fn('right', 2, (s, n) => s == null ? null : (n > 0 ? S(s).slice(-n) : ''));
+  fn('mid', 3, (s, p, n) => s == null ? null : S(s).substr(p - 1, n));
+  fn('ucase', 1, s => s == null ? null : S(s).toUpperCase());
+  fn('lcase', 1, s => s == null ? null : S(s).toLowerCase());
+  for (let k = 1; k <= 8; k++) fn('concat', k, function(){ const a = [...arguments]; return a.some(x => x == null) ? null : a.join(''); });
+  const part = (s, a, b) => { if (s == null) return null; const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(S(s)); return m ? +S(s).slice(a, b) : null; };
+  fn('year', 1, s => part(s, 0, 4)); fn('month', 1, s => part(s, 5, 7)); fn('day', 1, s => part(s, 8, 10));
+  fn('dayofmonth', 1, s => part(s, 8, 10));
+  fn('now', 0, () => new Date().toISOString().slice(0, 19).replace('T', ' '));
+  fn('curdate', 0, () => new Date().toISOString().slice(0, 10));
+  fn('datediff', 2, (a, b) => (a == null || b == null) ? null : Math.round((Date.parse(S(a).slice(0,10)) - Date.parse(S(b).slice(0,10))) / 864e5));
+  fn('truncate', 2, (x, d) => x == null ? null : Math.trunc(x * 10 ** d) / 10 ** d);
+}
+async function getDB(name){
+  if (DB[name]) return DB[name];
+  if (!loadingDB[name]) loadingDB[name] = (async () => {
+    if (!(window.DBDATA && window.DBDATA[name])) await loadScript('db-' + name + '.js');
+    RAW[name] = await gunzipB64(window.DBDATA[name]);
+    const db = new SQL.Database(RAW[name]); addFunctions(db); DB[name] = db; return db;
+  })();
+  return loadingDB[name];
+}
+function resetDB(name){ if (RAW[name]) { DB[name] = new SQL.Database(RAW[name]); addFunctions(DB[name]); } }
+
+function translateErr(msg){
+  let m;
+  if ((m = /no such column: (.+)/.exec(msg))) return 'Die Spalte <code>' + esc(m[1]) + '</code> gibt es nicht. Tippfehler? Schau rechts in die Tabellenliste – oder fehlt ein JOIN?';
+  if ((m = /no such table: (.+)/.exec(msg))) return 'Die Tabelle <code>' + esc(m[1]) + '</code> gibt es in dieser Datenbank nicht.';
+  if ((m = /near "(.*)": syntax error/.exec(msg))) return 'Syntaxfehler in der Nähe von <code>' + esc(m[1]) + '</code>. Prüfe Kommas, Klammern, Anführungszeichen und die Reihenfolge der Klauseln.';
+  if (/incomplete input/.test(msg)) return 'Die Abfrage ist unvollständig – fehlt etwas am Ende (z. B. Klammer, Anführungszeichen)?';
+  if ((m = /ambiguous column name: (.+)/.exec(msg))) return 'Die Spalte <code>' + esc(m[1]) + '</code> gibt es in mehreren Tabellen – schreib den Tabellennamen/Alias davor, z. B. <code>p.' + esc(m[1].split('.').pop()) + '</code>.';
+  if (/misuse of aggregate/.test(msg)) return 'Aggregatfunktion an falscher Stelle! In <code>WHERE</code> sind <code>count/sum/avg/min/max</code> nicht erlaubt – dafür gibt es <code>HAVING</code>.';
+  if ((m = /no such function: (.+)/.exec(msg))) return 'Die Funktion <code>' + esc(m[1]) + '</code> kennt diese Lern-Engine nicht.';
+  if (/a GROUP BY clause is required before HAVING/.test(msg)) return '<code>HAVING</code> geht nur zusammen mit <code>GROUP BY</code>.';
+  return esc(msg);
+}
+function run(db, sql){
+  let last = {columns: [], values: []};
+  for (const st of db.iterateStatements(sql)) {
+    try {
+      const cols = st.getColumnNames(), vals = [];
+      while (st.step()) vals.push(st.get());
+      if (cols.length) last = {columns: cols, values: vals};
+    } finally { st.free(); }
+  }
+  return last;
+}
+
+/* ---------- comparison ---------- */
+function norm(v){
+  if (v == null) return '∅';
+  if (typeof v === 'number') { const r = Math.round(v * 100) / 100; return 'n:' + (Object.is(r, -0) ? 0 : r); }
+  const s = String(v).trim();
+  if (/^-?\d+(\.\d+)?$/.test(s)) return 'n:' + Math.round(parseFloat(s) * 100) / 100;
+  return 's:' + s.toLowerCase();
+}
+function rowKey(r){ return r.map(norm).sort().join('\u0001'); }
+function multisetEq(a, b){
+  if (a.length !== b.length) return false;
+  const m = new Map(); for (const x of a) m.set(x, (m.get(x) || 0) + 1);
+  for (const x of b) { const c = m.get(x); if (!c) return false; m.set(x, c - 1); }
+  return true;
+}
+function compare(user, exp, ex){
+  const uc = user.columns.length, ec = exp.columns.length;
+  if (uc !== ec) return {ok:false, cls:'err', msg: `Deine Abfrage liefert <b>${uc}</b> Spalte${uc===1?'':'n'}, erwartet sind <b>${ec}</b>. Lies die Angabe nochmal: Welche Spalten sollen ins Ergebnis?`};
+  const ur = user.values.length, er = exp.values.length;
+  if (ur !== er) {
+    let tip = ur > er ? 'zu viele Zeilen – fehlt eine Bedingung (WHERE/HAVING) oder ein DISTINCT?' : 'zu wenige Zeilen – ist eine Bedingung zu streng?';
+    return {ok:false, cls:'err', msg: `Deine Abfrage liefert <b>${ur}</b> Zeile${ur===1?'':'n'}, erwartet sind <b>${er}</b> – ${tip}`};
+  }
+  if (!multisetEq(user.values.map(rowKey), exp.values.map(rowKey)))
+    return {ok:false, cls:'err', msg: 'Spalten- und Zeilenanzahl stimmen, aber die <b>Werte</b> sind anders. Vergleiche dein Ergebnis mit der Angabe (Filter? richtige Spalte? richtige Aggregatfunktion?).'};
+  if (ex.order && ex.order.length && er > 1) {
+    // map expected sort columns to user columns by equal value multiset, then compare key sequence
+    const cands = ex.order.map(k => {
+      const ev = exp.values.map(r => norm(r[k]));
+      const list = [];
+      for (let j = 0; j < uc; j++) if (multisetEq(user.values.map(r => norm(r[j])), ev)) list.push(j);
+      return list;
+    });
+    const expSeq = exp.values.map(r => ex.order.map(k => norm(r[k])).join('|'));
+    let sorted = false;
+    const tryCombo = (i, pick) => {
+      if (sorted) return;
+      if (i === cands.length) { const us = user.values.map(r => pick.map(j => norm(r[j])).join('|')); if (us.every((x, t) => x === expSeq[t])) sorted = true; return; }
+      for (const j of cands[i]) tryCombo(i + 1, pick.concat(j));
+    };
+    tryCombo(0, []);
+    if (!sorted) return {ok:false, cls:'warn', msg: 'Fast! Die Daten stimmen, aber die <b>Sortierung</b> nicht. Prüfe dein <code>ORDER BY</code> (Spalte? <code>asc</code>/<code>desc</code>?).'};
+  }
+  return {ok:true};
+}
+
+/* ---------- highlighting ---------- */
+const KW = new Set('select from where group by having order asc desc distinct all and or not in between like is null as inner join on left right outer cross union intersect except limit offset case when then else end exists insert into values update set delete create table'.split(' '));
+const FN = new Set('count sum avg min max round left right year month day date concat upper lower length coalesce ifnull substr substring abs ucase lcase now curdate datediff mid trim'.split(' '));
+const PYKW = new Set('False None True and as assert break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield'.split(' '));
+const PYFN = new Set('print input len range int float str bool list dict tuple set type sum min max abs round sorted enumerate isinstance ord chr open zip map filter any all reversed help'.split(' '));
+function hl(code, lang){
+  let out = ''; let m;
+  if (lang === 'py') {
+    const re = /(#[^\n]*)|([fFrRbB]?(?:"""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$)|"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?))|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)|([\s\S])/g;
+    let prev = '';
+    while ((m = re.exec(code))) {
+      if (m[1]) out += '<span class="cm">' + esc(m[1]) + '</span>';
+      else if (m[2]) out += '<span class="st">' + esc(m[2]) + '</span>';
+      else if (m[3]) out += '<span class="nu">' + m[3] + '</span>';
+      else if (m[4]) { const w = m[4]; out += PYKW.has(w) ? '<span class="kw">' + w + '</span>' : (prev === 'def' || (PYFN.has(w) && /^\s*\(/.test(code.slice(re.lastIndex)))) ? '<span class="fn">' + w + '</span>' : esc(w); prev = w; continue; }
+      else out += esc(m[5]);
+      if (m[5] && /\S/.test(m[5])) prev = m[5];
+    }
+    return out;
+  }
+  const re = /(--[^\n]*)|('(?:[^']|'')*'?|"(?:[^"])*"?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_][A-Za-z0-9_]*)|([\s\S])/g;
+  while ((m = re.exec(code))) {
+    if (m[1]) out += '<span class="cm">' + esc(m[1]) + '</span>';
+    else if (m[2]) out += '<span class="st">' + esc(m[2]) + '</span>';
+    else if (m[3]) out += '<span class="nu">' + m[3] + '</span>';
+    else if (m[4]) { const w = m[4].toLowerCase(); out += KW.has(w) ? '<span class="kw">' + esc(m[4]) + '</span>' : (FN.has(w) && /^\s*\(/.test(code.slice(re.lastIndex))) ? '<span class="fn">' + esc(m[4]) + '</span>' : esc(m[4]); }
+    else out += esc(m[5]);
+  }
+  return out;
+}
+
+/* ---------- result table ---------- */
+function tableHTML(res, max=200){
+  if (!res.columns.length) return '<div class="muted" style="padding:8px">Keine Ergebnistabelle (Anweisung ohne Rückgabe).</div>';
+  let h = '<div class="tbl"><table><thead><tr>' + res.columns.map(c => '<th>' + esc(c) + '</th>').join('') + '</tr></thead><tbody>';
+  if (!res.values.length) h += '<tr><td colspan="' + res.columns.length + '" class="null">leeres Ergebnis (0 Zeilen)</td></tr>';
+  res.values.slice(0, max).forEach(r => {
+    h += '<tr>' + r.map(v => v == null ? '<td class="null">NULL</td>' : typeof v === 'number' ? '<td class="n">' + (Number.isInteger(v) ? v : +v.toFixed(4)) + '</td>' : v instanceof Uint8Array ? '<td class="null">[BLOB]</td>' : '<td title="' + esc(v) + '">' + esc(v) + '</td>').join('') + '</tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+function metaLine(res, ms){ const n = res.values.length; return `<div class="meta">${n} Zeile${n===1?'':'n'}${n>200?' (die ersten 200 angezeigt)':''} · ${res.columns.length} Spalte${res.columns.length===1?'':'n'}${ms!=null?' · '+ms+' ms':''}</div>`; }
+
+/* ---------- navigation ---------- */
+function lessonStats(l){ const n = l.exercises.length; const d = l.exercises.filter(e => store.done[e.id]).length; return {n, d}; }
+function renderNav(){
+  const route = currentRoute();
+  const home = SUBJ === 'insy' ? 'start' : SUBJ, play = SUBJ === 'sew' ? 'py-spielwiese' : SUBJ === 'insy' ? 'spielwiese' : null;
+  let h = '<li><a href="#' + home + '" class="' + (route.name==='start'?'active':'') + '"><span class="num">⌂</span>Start</a></li>';
+  let grp = null;
+  L.forEach((l, i) => {
+    const s = lessonStats(l);
+    if (l.group && l.group !== grp) { grp = l.group; h += `<li class="grp">${esc(grp)}</li>`; }
+    h += `<li class="${s.d===s.n?'done':''}"><a href="#${l.id}" class="${route.lesson===l?'active':''}"><span class="num${l.num && l.num.length > 2 ? ' wide' : ''}">${s.d===s.n?'✓':(l.num || i+1)}</span>${esc(l.short)}<span class="meta">${s.d}/${s.n}</span></a></li>`;
+  });
+  if (play) h += '<li class="sep"></li><li><a href="#' + play + '" class="' + (route.name==='play'?'active':'') + '"><span class="num">⌘</span>Freies Üben</a></li>';
+  $('#nav').innerHTML = h;
+  const all = L.flatMap(l => l.exercises), done = all.filter(e => store.done[e.id]).length;
+  $('#overallBar').style.width = (100 * done / Math.max(1, all.length)) + '%';
+  $('#overallLabel').textContent = done + ' von ' + all.length + ' Übungen gelöst';
+  $('#subjInsy').classList.toggle('on', SUBJ === 'insy'); $('#subjSew').classList.toggle('on', SUBJ === 'sew'); $('#subjItp').classList.toggle('on', SUBJ === 'itp');
+  $('#brandSub').textContent = SUBJ === 'sew' ? 'SEW · 3. Jahrgang · Python bis Rekursion' : SUBJ === 'itp' ? 'ITP · 3. Jahrgang · Projektmanagement' : 'INSY · 3. Jahrgang · SELECT bis JOIN';
+  $('#brandTitle').textContent = SUBJ === 'sew' ? 'Python lernen' : SUBJ === 'itp' ? 'Projektmanagement' : 'SQL lernen';
+}
+function currentRoute(){
+  const h = (location.hash || '').slice(1);
+  if (h === 'spielwiese') { setSubject('insy'); return {name:'play'}; }
+  if (h === 'py-spielwiese') { setSubject('sew'); return {name:'play'}; }
+  if (h === 'start') { setSubject('insy'); return {name:'start'}; }
+  if (h === 'sew') { setSubject('sew'); return {name:'start'}; }
+  if (h === 'itp') { setSubject('itp'); return {name:'start'}; }
+  const m = /^(.+)-uebung$/.exec(h), id = m ? m[1] : h;
+  for (const [subj, list] of [['insy', INSY], ['sew', SEW], ['itp', ITP]]) {
+    const l = list.find(x => x.id === id);
+    if (l) { setSubject(subj); return {name:'lesson', lesson:l, tab: m ? 'practice' : 'theory'}; }
+  }
+  return {name:'start'};
+}
+function route(){
+  const r = currentRoute();
+  $('#side').classList.remove('open');
+  if (r.name === 'lesson') renderLesson(r.lesson, r.tab);
+  else if (r.name === 'play') (SUBJ === 'sew' ? renderPyPlay : renderPlay)();
+  else (SUBJ === 'insy' ? renderStart : renderSewStart)();
+  renderNav();
+  $('#main').scrollTop = 0;
+  if (SUBJ === 'sew') setTimeout(() => { try { startPy(); } catch(e) {} }, 300);
+}
+
+/* ---------- start ---------- */
+function renderStart(){
+  let h = `<div class="crumbs">INSY · Datenbanken</div><h2 class="title">SQL SELECT – Schritt für Schritt</h2>
+  <p class="source">Aus deinen Unterlagen: SQL SELECT 1, Aggregation (GROUP BY, HAVING), INNER JOIN und Aufgabenblatt „Aggregation – 2“ · Datenbanken Northwind & Sakila</p>
+  <div class="how">
+    <div><b>1 · Theorie lesen</b>Jedes Kapitel startet mit der Theorie aus den Folien. Die Beispiele kannst du direkt ausführen.</div>
+    <div><b>2 · Selbst coden</b>Dann schreibst du die Queries selbst – mit echter Datenbank direkt im Browser.</div>
+    <div><b>3 · Prüfen lassen</b>„Prüfen“ vergleicht dein Ergebnis mit der Musterlösung und sagt dir, was noch nicht passt.</div>
+  </div>
+  <div class="home-grid">`;
+  L.forEach((l, i) => { const s = lessonStats(l); h += `<div class="home-card" data-go="${l.id}"><div class="n">Kapitel ${i+1}</div><h3>${esc(l.title)}</h3><div class="muted" style="font-size:13px">${s.n} Übungen · ${s.d} gelöst</div><div class="bar"><div style="width:${100*s.d/s.n}%"></div></div></div>`; });
+  h += '</div>';
+  const next = L.find(l => lessonStats(l).d < lessonStats(l).n);
+  if (next) h += `<div class="next-row"><button class="primary" data-go="${next.id}">${lessonStats(next).d ? 'Weitermachen' : 'Los geht\'s'}: ${esc(next.short)} →</button></div>`;
+  $('#view').innerHTML = h;
+  $('#view').querySelectorAll('[data-go]').forEach(el => el.onclick = () => location.hash = el.dataset.go);
+}
+
+function renderSewStart(){
+  let h = SUBJ === 'itp' ? `<div class="crumbs">ITP · Informationstechnische Projekte</div><h2 class="title">Projektmanagement – Schritt für Schritt</h2>
+  <p class="source">Aus deinen Unterlagen: 1_introduction project management, 2_Project Phases und SIN-Obelisk Prozessanalyse</p>
+  <div class="how">
+    <div><b>1 · Theorie lesen</b>Der Stoff der Folien – auch das, was dort nur als Bild/Grafik steht, ist hier als Text erklärt.</div>
+    <div><b>2 · Üben</b>Quizfragen (eine oder mehrere richtig), Reihenfolgen ordnen und offene Fragen mit Musterantwort.</div>
+    <div><b>3 · Wiederholen</b>Am Ende die Test-Wiederholung mit allen wichtigen Punkten auf einen Blick.</div>
+  </div>
+` : `<div class="crumbs">SEW · Softwareentwicklung</div><h2 class="title">Python & Rekursion – Schritt für Schritt</h2>
+  <p class="source">Aufgebaut wie sew.htl-villach.at · Jahr 3: Kapitel 1 „Einführung in Python“, Kapitel 2 „Rekursion“ und die Aufgaben 01–05 (Teststoff)</p>
+  <div class="how">
+    <div><b>1 · Theorie lesen</b>Jedes Kapitel erklärt den Stoff aus dem Skriptum. Alle Code-Beispiele kannst du direkt ausführen.</div>
+    <div><b>2 · Selbst programmieren</b>Du schreibst echten Python-Code – er läuft direkt im Browser (Internet nötig, Python lädt beim ersten Mal ein paar Sekunden).</div>
+    <div><b>3 · Prüfen lassen</b>„Prüfen“ testet deine Funktionen automatisch und sagt dir, welcher Fall noch nicht stimmt.</div>
+  </div>
+`;
+  const groups = [...new Set(L.map(l => l.group))];
+  groups.forEach(g => {
+    h += `<h3 class="grp-h">${esc(g)}</h3><div class="home-grid">`;
+    L.filter(l => l.group === g).forEach(l => { const s = lessonStats(l); h += `<div class="home-card" data-go="${l.id}"><div class="n">${esc(l.num)}</div><h3>${esc(l.title)}</h3><div class="muted" style="font-size:13px">${s.n} Übungen · ${s.d} gelöst</div><div class="bar"><div style="width:${100*s.d/s.n}%"></div></div></div>`; });
+    h += '</div>';
+  });
+  const next = L.find(l => lessonStats(l).d < lessonStats(l).n);
+  if (next) h += `<div class="next-row"><button class="primary" data-go="${next.id}">${lessonStats(next).d ? 'Weitermachen' : 'Los geht\'s'}: ${esc(next.num + ' ' + next.short)} →</button></div>`;
+  $('#view').innerHTML = h;
+  $('#view').querySelectorAll('[data-go]').forEach(el => el.onclick = () => location.hash = el.dataset.go);
+}
+
+/* ---------- lesson ---------- */
+function renderLesson(l, tab){
+  const i = L.indexOf(l);
+  let h = `<div class="crumbs">${l.group ? esc(l.group) + (l.num && !/^\d\d$|✓/.test(l.num) ? ' · ' + esc(l.num) : '') : 'Kapitel ' + (i+1) + ' von ' + L.length}</div><h2 class="title">${esc(l.title)}</h2><div class="source">Quelle: ${esc(l.source)}</div>
+  <div class="tabs"><button class="${tab==='theory'?'on':''}" data-tab="theory">📖 Theorie</button><button class="${tab==='practice'?'on':''}" data-tab="practice">⌨️ Praxis · ${lessonStats(l).d}/${l.exercises.length}</button></div><div id="tabBody"></div>`;
+  $('#view').innerHTML = h;
+  $('#view').querySelectorAll('[data-tab]').forEach(b => b.onclick = () => location.hash = b.dataset.tab === 'theory' ? l.id : l.id + '-uebung');
+  if (tab === 'theory') renderTheory(l); else renderPractice(l);
+}
+function renderTheory(l){
+  const body = $('#tabBody');
+  body.innerHTML = '<div class="theory">' + l.theory + '</div><div class="next-row"><button class="primary" id="toPractice">Zu den Übungen (' + l.exercises.length + ') →</button></div>';
+  body.querySelectorAll('.trace').forEach(traceBox);
+  body.querySelectorAll('.example').forEach(ex => {
+    if (ex.dataset.lang === 'py') return pyExampleBox(ex);
+    const code = ex.textContent.trim(), db = ex.dataset.db;
+    const box = document.createElement('div'); box.className = 'example-box';
+    box.innerHTML = `<div class="bar">Beispiel · <span class="db">${db}</span><button>▶ Ausführen</button></div><pre>${hl(code)}</pre><div class="out"></div>`;
+    ex.replaceWith(box);
+    box.querySelector('button').onclick = async () => {
+      const out = box.querySelector('.out');
+      out.innerHTML = '<div class="meta" style="padding:8px">läuft …</div>';
+      try { const d = await getDB(db); const t = performance.now(); const r = run(d, code); out.innerHTML = '<div style="padding:0 10px 10px">' + metaLine(r, Math.round(performance.now() - t)) + tableHTML(r, 50) + '</div>'; }
+      catch(e) { out.innerHTML = '<div class="feedback err show" style="margin:10px">' + translateErr(e.message) + '</div>'; }
+    };
+  });
+  $('#toPractice').onclick = () => location.hash = l.id + '-uebung';
+}
+
+let curEx = {};
+function renderPractice(l){
+  let idx = curEx[l.id];
+  if (idx == null) { idx = l.exercises.findIndex(e => !store.done[e.id]); if (idx < 0) idx = 0; }
+  curEx[l.id] = idx;
+  const ex = l.exercises[idx];
+  const body = $('#tabBody');
+  if (ex.type === 'quiz' || ex.type === 'predict') return renderSpecial(l, idx, ex, body);
+  if (ex.type === 'multi') return renderMulti(l, idx, ex, body);
+  if (ex.type === 'order') return renderOrder(l, idx, ex, body);
+  if (ex.type === 'reflect') return renderReflect(l, idx, ex, body);
+  if (ex.type === 'py') return renderPyExercise(l, idx, ex, body);
+  if (ex.type === 'output') return renderOutputExercise(l, idx, ex, body);
+  body.innerHTML = `<div class="practice"><div>
+    <div class="ex-strip">${l.exercises.map((e, k) => `<button class="${k===idx?'on ':''}${store.done[e.id] ? (store.peek[e.id] ? 'peek' : 'done') : ''}" data-k="${k}" title="Übung ${k+1}">${k+1}</button>`).join('')}</div>
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · Datenbank <span class="db">${ex.db}</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task}</div>${ex.note ? '<div class="note">ℹ️ ' + ex.note + '</div>' : ''}</div>
+    <div class="editor"><div class="gutter" id="gutter"></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="-- Schreib hier deine Query …&#10;select …"></textarea></div>
+    <div class="actions">
+      <button class="blue" id="btnRun">▶ Ausführen<span class="kbd">Strg+Enter</span></button>
+      <button class="primary" id="btnCheck">✓ Prüfen<span class="kbd">Strg+Shift+Enter</span></button>
+      <span class="spacer"></span>
+      <button id="btnHint">💡 Tipp</button>
+      <button id="btnSol">Lösung</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <div class="hintbox" id="hint">💡 ${ex.hint || 'Kein Tipp vorhanden.'}</div>
+    <div class="solbox" id="sol"></div>
+    <div class="result" id="res"></div>
+    <div class="next-row">${idx > 0 ? '<button id="prevEx">← Vorherige</button>' : ''}${idx < l.exercises.length - 1 ? '<button id="nextEx">Nächste Übung →</button>' : (L.indexOf(l) < L.length - 1 ? '<button id="nextLesson" class="primary">Nächstes Kapitel: ' + esc(L[L.indexOf(l)+1].short) + ' →</button>' : '')}</div>
+  </div><aside class="schema" id="schema"><h4>Tabellen <span>${ex.db}</span></h4><div class="muted">lädt …</div></aside></div>`;
+
+  body.querySelectorAll('.ex-strip button').forEach(b => b.onclick = () => { curEx[l.id] = +b.dataset.k; renderPractice(l); });
+  const go = d => { curEx[l.id] = idx + d; renderPractice(l); $('#main').scrollTop = 0; };
+  if ($('#prevEx')) $('#prevEx').onclick = () => go(-1);
+  if ($('#nextEx')) $('#nextEx').onclick = () => go(1);
+  if ($('#nextLesson')) $('#nextLesson').onclick = () => location.hash = L[L.indexOf(l)+1].id;
+
+  const ta = $('#code');
+  ta.value = store.code[ex.id] || '';
+  setupEditor(ta, v => { store.code[ex.id] = v; save(); });
+  setTimeout(() => ta.focus(), 30);
+  renderSchema(ex.db, ta);
+
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  async function exec(){
+    const sql = ta.value.trim();
+    if (!sql) { fb('info', 'Schreib zuerst eine Query in den Editor.'); return null; }
+    try {
+      const d = await getDB(ex.db); const t = performance.now(); const r = run(d, sql);
+      $('#res').innerHTML = '<h4 style="margin:12px 2px 0;font-size:13px;color:var(--muted)">Dein Ergebnis</h4>' + metaLine(r, Math.round(performance.now() - t)) + tableHTML(r);
+      return r;
+    } catch(e) { $('#res').innerHTML = ''; fb('err', '⛔ ' + translateErr(e.message)); return null; }
+  }
+  $('#btnRun').onclick = async () => { const r = await exec(); if (r) { $('#fb').className = 'feedback'; } };
+  $('#btnCheck').onclick = async () => {
+    const r = await exec(); if (!r) return;
+    const d = await getDB(ex.db); let exp;
+    try { exp = run(d, ex.solution); } catch(e) { fb('err', 'Interner Fehler in der Musterlösung: ' + esc(e.message)); return; }
+    const c = compare(r, exp, ex);
+    if (c.ok) {
+      const first = !store.done[ex.id];
+      store.done[ex.id] = true; save(); renderNav();
+      $('.ex-strip button.on').classList.add(store.peek[ex.id] ? 'peek' : 'done');
+      const emptyNote = exp.values.length === 0 ? '<div class="muted" style="font-size:13px;margin-top:4px">Hinweis: Auch die Musterlösung liefert hier 0 Zeilen – schau dir trotzdem die Lösung an und vergleiche die Logik.</div>' : '';
+      const nextBtn = idx < l.exercises.length - 1 ? '<button class="primary" id="fbNext">Nächste Übung →</button>' : (L.indexOf(l) < L.length - 1 ? '<button class="primary" id="fbNext">Kapitel geschafft! Weiter zu ' + esc(L[L.indexOf(l)+1].short) + ' →</button>' : '<b>🎉 Alles geschafft!</b>');
+      fb('ok', '✅ <b>Richtig!</b> Dein Ergebnis stimmt mit der Musterlösung überein.' + (store.peek[ex.id] && first ? ' <span class="muted">(mit Blick auf die Lösung – versuch sie später nochmal ohne)</span>' : '') + emptyNote + '<div class="next">' + nextBtn + '</div>');
+      const nb = $('#fbNext'); if (nb) nb.onclick = () => { if (idx < l.exercises.length - 1) go(1); else location.hash = L[L.indexOf(l)+1].id; };
+    } else {
+      fb(c.cls, (c.cls === 'warn' ? '🟡 ' : '❌ ') + c.msg + '<div style="margin-top:8px"><button id="showCmp" style="font-size:12.5px;padding:4px 10px">Erwartetes Ergebnis zeigen</button></div>');
+      $('#showCmp').onclick = () => { $('#res').innerHTML = '<div class="compare"><div><h4>Dein Ergebnis</h4>' + metaLine(r) + tableHTML(r, 100) + '</div><div><h4>Erwartetes Ergebnis</h4>' + metaLine(exp) + tableHTML(exp, 100) + '</div></div>'; };
+    }
+  };
+  $('#btnHint').onclick = () => $('#hint').classList.toggle('show');
+  $('#btnSol').onclick = () => {
+    const s = $('#sol');
+    if (s.classList.contains('show')) { s.classList.remove('show'); return; }
+    if (!store.done[ex.id] && !s.dataset.confirm) {
+      s.dataset.confirm = '1';
+      s.innerHTML = 'Sicher? Am meisten lernst du, wenn du es zuerst selbst versuchst (Tipp hilft!). <button id="solYes" style="margin-left:8px;padding:4px 10px">Ja, Lösung zeigen</button>';
+      s.classList.add('show');
+      $('#solYes').onclick = showSol; return;
+    }
+    showSol();
+  };
+  function showSol(){
+    if (!store.done[ex.id]) { store.peek[ex.id] = true; save(); }
+    const s = $('#sol'); s.classList.add('show');
+    s.innerHTML = '<b>Musterlösung</b> <span class="muted" style="font-size:12.5px">– tipp sie ab statt zu kopieren, dann bleibt sie hängen.</span><pre>' + hl(ex.solution) + '</pre>';
+  }
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); (e.shiftKey ? $('#btnCheck') : $('#btnRun')).click(); }
+  });
+}
+
+function stripHTML(l, idx){
+  return `<div class="ex-strip">${l.exercises.map((e, k) => `<button class="${k===idx?'on ':''}${store.done[e.id] ? (store.peek[e.id] ? 'peek' : 'done') : ''}" data-k="${k}" title="Übung ${k+1}">${k+1}</button>`).join('')}</div>`;
+}
+function navHTML(l, idx){
+  return `<div class="next-row">${idx > 0 ? '<button id="prevEx">← Vorherige</button>' : ''}${idx < l.exercises.length - 1 ? '<button id="nextEx">Nächste Übung →</button>' : (L.indexOf(l) < L.length - 1 ? '<button id="nextLesson" class="primary">Nächstes Kapitel: ' + esc(L[L.indexOf(l)+1].short) + ' →</button>' : '')}</div>`;
+}
+function wireNav(l, idx){
+  const go = d => { curEx[l.id] = idx + d; renderPractice(l); $('#main').scrollTop = 0; };
+  $('#tabBody').querySelectorAll('.ex-strip button').forEach(b => b.onclick = () => { curEx[l.id] = +b.dataset.k; renderPractice(l); });
+  if ($('#prevEx')) $('#prevEx').onclick = () => go(-1);
+  if ($('#nextEx')) $('#nextEx').onclick = () => go(1);
+  if ($('#nextLesson')) $('#nextLesson').onclick = () => location.hash = L[L.indexOf(l)+1].id;
+  return go;
+}
+function renderSpecial(l, idx, ex, body){
+  const label = ex.type === 'quiz' ? 'Quizfrage' : 'Zeilen vorhersagen';
+  let h = `<div style="max-width:860px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge">${label}</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task}</div></div>`;
+  if (ex.type === 'quiz') {
+    h += `<div class="quiz-opts">${ex.options.map((o, k) => `<button data-o="${k}">${String.fromCharCode(65+k)}) ${o}</button>`).join('')}</div>`;
+  } else {
+    h += `<pre class="predict-q">${hl(ex.query)}</pre>
+      <div class="predict-in"><span>${ex.answerFrom === 'value' ? 'Ergebnis-Wert:' : 'Anzahl Zeilen:'}</span><input id="guess" type="number" min="0" inputmode="numeric" placeholder="?"><button class="primary" id="btnGuess">✓ Prüfen</button><span class="spacer"></span></div>`;
+  }
+  h += `<div class="feedback" id="fb"></div><div class="result" id="res"></div>${navHTML(l, idx)}</div>`;
+  body.innerHTML = h;
+  const go = wireNav(l, idx);
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  const solved = () => {
+    store.done[ex.id] = true; save(); renderNav();
+    $('.ex-strip button.on').classList.add('done');
+    const nb = idx < l.exercises.length - 1 ? '<button class="primary" id="fbNext">Nächste Übung →</button>' : (L.indexOf(l) < L.length - 1 ? '<button class="primary" id="fbNext">Weiter →</button>' : '<b>🎉 Alles geschafft!</b>');
+    return '<div class="next">' + nb + '</div>';
+  };
+  const bindNext = () => { const nb = $('#fbNext'); if (nb) nb.onclick = () => { if (idx < l.exercises.length - 1) go(1); else location.hash = L[L.indexOf(l)+1].id; }; };
+  if (ex.type === 'quiz') {
+    body.querySelectorAll('[data-o]').forEach(b => b.onclick = () => {
+      const k = +b.dataset.o;
+      if (k === ex.correct) {
+        body.querySelectorAll('[data-o]').forEach(x => x.disabled = true);
+        b.classList.add('right'); b.disabled = false;
+        fb('ok', '✅ <b>Richtig!</b> ' + ex.explain + solved()); bindNext();
+      } else {
+        b.classList.add('wrong');
+        fb('err', '❌ Leider nein – versuch es nochmal.');
+      }
+    });
+  } else {
+    const inp = $('#guess'); setTimeout(() => inp.focus(), 30);
+    const check = async () => {
+      const g = inp.value.trim();
+      if (g === '') { fb('info', 'Gib zuerst eine Zahl ein.'); return; }
+      const d = await getDB(ex.db); const r = run(d, ex.query);
+      const answer = ex.answerFrom === 'value' ? r.values[0][0] : r.values.length;
+      const show = () => { $('#res').innerHTML = '<h4 style="margin:12px 2px 0;font-size:13px;color:var(--muted)">So sieht das echte Ergebnis aus</h4>' + metaLine(r) + tableHTML(r, 30); };
+      if (Number(g) === Number(answer)) { show(); fb('ok', '✅ <b>Richtig: ' + answer + '</b>. ' + ex.explain + solved()); bindNext(); }
+      else {
+        const tries = (inp.dataset.t = (+inp.dataset.t || 0) + 1);
+        if (tries >= 2) { show(); fb('err', '❌ Nicht ' + esc(g) + ' – die richtige Antwort ist <b>' + answer + '</b>. ' + ex.explain + ' <span class="muted">(Merk dir die Regel und komm später wieder.)</span>'); }
+        else fb('err', '❌ Nicht ganz. Denk an die Regeln aus der Theorie („Zeilenanzahl vorhersagen“ / NULL) und versuch es nochmal.');
+      }
+    };
+    $('#btnGuess').onclick = check;
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  }
+}
+
+function setupEditor(ta, onChange, lang){
+  const pre = $('#hl'), gut = $('#gutter');
+  const sync = () => {
+    pre.innerHTML = hl(ta.value, lang) + '\n';
+    const n = ta.value.split('\n').length; let g = ''; for (let i = 1; i <= Math.max(n, 1); i++) g += '<div>' + i + '</div>'; gut.innerHTML = g;
+    ta.style.height = 'auto'; ta.style.height = Math.max(170, ta.scrollHeight + 2) + 'px';
+    pre.scrollTop = ta.scrollTop; gut.scrollTop = ta.scrollTop;
+  };
+  ta.addEventListener('input', () => { sync(); onChange(ta.value); });
+  ta.addEventListener('scroll', () => { pre.scrollTop = ta.scrollTop; gut.scrollTop = ta.scrollTop; });
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.ctrlKey) { e.preventDefault(); insertAt(ta, lang === 'py' ? '    ' : '  '); }
+  });
+  ta._sync = sync; sync();
+}
+function insertAt(ta, text){
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.setRangeText(text, s, e, 'end'); ta.dispatchEvent(new Event('input')); ta.focus();
+}
+async function renderSchema(dbName, ta){
+  const el = $('#schema');
+  try {
+    const d = await getDB(dbName);
+    const tables = run(d, "select name from sqlite_master where type='table' order by name").values.map(r => r[0]);
+    let h = `<h4>Tabellen <span>${dbName}</span></h4><div class="muted" style="font-size:11.5px;margin:-4px 0 6px">Klick auf einen Namen → einfügen</div>`;
+    for (const t of tables) {
+      const cnt = run(d, `select count(*) from "${t}"`).values[0][0];
+      if (!cnt) continue;
+      const cols = run(d, `pragma table_info("${t}")`).values.map(r => r[1]);
+      h += `<details><summary><span data-ins="${t}">${t}</span><span class="cnt">${cnt}</span></summary><div class="cols">${cols.map(c => `<span data-ins="${c}">${c}</span>`).join('')}</div></details>`;
+    }
+    el.innerHTML = h;
+    el.querySelectorAll('[data-ins]').forEach(s => s.addEventListener('click', ev => { if (s.tagName === 'SPAN' && s.parentElement.tagName === 'SUMMARY') { ev.preventDefault(); s.closest('details').open = true; } if (ta) insertAt(ta, s.dataset.ins); }));
+  } catch(e) { el.innerHTML = '<div class="feedback err show">DB konnte nicht geladen werden: ' + esc(e.message) + '</div>'; }
+}
+
+/* ---------- playground ---------- */
+let playDB = 'northwind';
+function renderPlay(){
+  $('#view').innerHTML = `<div class="crumbs">Spielwiese</div><h2 class="title">Freies Üben</h2><div class="source">Schreib beliebige Queries gegen Northwind oder Sakila. Die Datenbank liegt nur in deinem Browser – kaputt machen geht nicht (und falls doch: „DB zurücksetzen“).</div>
+  <div class="practice"><div>
+    <div class="actions" style="margin-top:0"><button id="dbN" class="${playDB==='northwind'?'blue':''}">Northwind</button><button id="dbS" class="${playDB==='sakila'?'blue':''}">Sakila</button><span class="spacer"></span><button id="dbReset" class="ghost">DB zurücksetzen</button></div>
+    <div class="editor"><div class="gutter" id="gutter"></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" placeholder="select …"></textarea></div>
+    <div class="actions"><button class="blue" id="btnRun">▶ Ausführen<span class="kbd">Strg+Enter</span></button></div>
+    <div class="feedback" id="fb"></div><div class="result" id="res"></div>
+  </div><aside class="schema" id="schema"></aside></div>`;
+  const ta = $('#code'); ta.value = store.code['play-' + playDB] || '';
+  setupEditor(ta, v => { store.code['play-' + playDB] = v; save(); });
+  renderSchema(playDB, ta);
+  $('#dbN').onclick = () => { playDB = 'northwind'; renderPlay(); };
+  $('#dbS').onclick = () => { playDB = 'sakila'; renderPlay(); };
+  $('#dbReset').onclick = () => { resetDB(playDB); const f = $('#fb'); f.className = 'feedback show info'; f.textContent = 'Datenbank ' + playDB + ' wurde zurückgesetzt.'; };
+  const doRun = async () => {
+    const f = $('#fb'); f.className = 'feedback';
+    try { const d = await getDB(playDB); const t = performance.now(); const r = run(d, ta.value); $('#res').innerHTML = metaLine(r, Math.round(performance.now() - t)) + tableHTML(r, 500); }
+    catch(e) { $('#res').innerHTML = ''; f.className = 'feedback show err'; f.innerHTML = '⛔ ' + translateErr(e.message); }
+  };
+  $('#btnRun').onclick = doRun;
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); doRun(); } });
+}
+
+
+/* ================= PYTHON (SEW) ================= */
+const PYO = 'https://cdn.jsdelivr.net/npm/pyodide@0.27.7/';
+const PY_SETUP = String.raw`
+import sys, io, ast, os, shutil, traceback
+_HINTS = {
+ 'NameError': 'Ein Name ist unbekannt – Tippfehler? Variable/Funktion vor der Verwendung definiert? (true/false/none schreibt man True/False/None)',
+ 'SyntaxError': 'Syntaxfehler – fehlt ein Doppelpunkt nach if/for/while/def, eine Klammer oder ein Anführungszeichen?',
+ 'IndentationError': 'Einrückungsfehler – alle Zeilen eines Blocks müssen gleich weit (4 Leerzeichen) eingerückt sein.',
+ 'TabError': 'Tabulatoren und Leerzeichen gemischt – verwende nur Leerzeichen.',
+ 'TypeError': 'Diese Operation passt nicht zum Datentyp – z. B. String + Zahl (input() liefert immer einen String!) oder ein Tupel verändern.',
+ 'RecursionError': 'Maximale Rekursionstiefe überschritten – fehlt der Basisfall, ist er unerreichbar, oder wird das Problem nicht kleiner?',
+ 'ZeroDivisionError': 'Division durch 0.',
+ 'IndexError': 'Index außerhalb der Liste – Listen beginnen bei 0, der letzte Index ist len(...) - 1.',
+ 'KeyError': 'Diesen Schlüssel gibt es im Dictionary nicht – prüfe mit "in" oder verwende .get().',
+ 'ValueError': 'Ungültiger Wert – z. B. int("abc").',
+ 'AttributeError': 'Diese Methode/Eigenschaft gibt es für diesen Typ nicht (z. B. Länge mit len(x), nicht x.length).',
+ 'EOFError': 'input() wurde öfter aufgerufen, als Eingaben vorhanden sind – trag Eingaben ins Feld „Eingaben“ ein (eine pro Zeile).',
+ 'UnboundLocalError': 'Eine lokale Variable wird verwendet, bevor ihr ein Wert zugewiesen wurde.',
+}
+def _fmt(e, fname):
+    name = type(e).__name__
+    line = None
+    if isinstance(e, SyntaxError) and e.filename == fname:
+        line = e.lineno
+    else:
+        for fr in traceback.extract_tb(e.__traceback__):
+            if fr.filename == fname:
+                line = fr.lineno
+    msg = str(e)
+    if isinstance(e, SyntaxError): msg = e.msg
+    if isinstance(e, RecursionError): msg = 'maximum recursion depth exceeded'
+    return {'type': name, 'msg': msg, 'line': line, 'hint': _HINTS.get(name, '')}
+
+def _demo_tree():
+    root = '/home/pyodide/projekt'
+    if os.path.exists(root): shutil.rmtree(root)
+    files = {
+      'readme.txt': 'Projektordner\n',
+      'bilder/logo.png': 'x' * 120,
+      'bilder/hintergrund.jpg': 'x' * 300,
+      'bilder/icons/home.png': 'x' * 40,
+      'bilder/icons/user.PNG': 'x' * 60,
+      'bilder/icons/alt/old.png': 'x' * 10,
+      'video/intro.mp4': 'x' * 1000,
+      'video/notizen.txt': 'x' * 25,
+      'code/main.py': 'print("hi")\n',
+      'code/utils/helper.py': 'x' * 50,
+      'leer/': None,
+    }
+    for p, c in files.items():
+        full = os.path.join(root, p)
+        if c is None:
+            os.makedirs(full, exist_ok=True); continue
+        os.makedirs(os.path.dirname(full), exist_ok=True)
+        with open(full, 'w') as f: f.write(c)
+    os.chdir('/home/pyodide')
+
+def _trace(code, fname, demo):
+    events = []
+    LIMIT = 400
+    class W:
+        def write(self, s):
+            if s and len(events) < LIMIT:
+                if events and events[-1][0] == 'print' and not events[-1][1].endswith('\n'):
+                    events[-1] = ('print', events[-1][1] + s)
+                else:
+                    events.append(('print', s))
+            return len(s)
+        def flush(self): pass
+    def r(v):
+        t = repr(v)
+        return t if len(t) <= 40 else t[:37] + '...'
+    def tr(frame, event, arg):
+        if frame.f_code.co_name != fname:
+            return None
+        if len(events) >= LIMIT:
+            return None
+        if event == 'call':
+            co = frame.f_code
+            args = ', '.join(r(frame.f_locals.get(k)) for k in co.co_varnames[:co.co_argcount])
+            events.append(('call', args))
+        elif event == 'return':
+            events.append(('return', r(arg)))
+        return tr
+    if demo: _demo_tree()
+    old = sys.stdout
+    sys.stdout = W()
+    err = None
+    g = {'__name__': '__main__', '__builtins__': __builtins__}
+    sys.setrecursionlimit(1000)
+    try:
+        sys.settrace(tr)
+        exec(compile(code, '<dein code>', 'exec'), g)
+    except BaseException as e:
+        err = _fmt(e, '<dein code>')
+    finally:
+        sys.settrace(None)
+        sys.stdout = old
+    return {'events': [list(e) for e in events], 'err': err, 'truncated': len(events) >= LIMIT}
+
+def _run(code, stdin, tests, demo):
+    out = io.StringIO()
+    lines = stdin.split('\n') if stdin else []
+    def fake_input(prompt=''):
+        out.write(str(prompt))
+        if not lines: raise EOFError('keine Eingabe mehr vorhanden')
+        v = lines.pop(0); out.write(v + '\n'); return v
+    g = {'__name__': '__main__', 'input': fake_input, '__builtins__': __builtins__}
+    if demo: _demo_tree()
+    old = sys.stdout, sys.stderr
+    sys.stdout = sys.stderr = out
+    sys.setrecursionlimit(1000)
+    err = None; test = None; user_out = ''
+    try:
+        try:
+            exec(compile(code, '<dein code>', 'exec'), g)
+        except BaseException as e:
+            err = _fmt(e, '<dein code>')
+        user_out = out.getvalue()
+        if err is None and tests:
+            def _out(): return user_out
+            def _capture(fn, *a, **k):
+                buf = io.StringIO(); prev = sys.stdout; sys.stdout = buf
+                try: fn(*a, **k)
+                finally: sys.stdout = prev
+                return buf.getvalue()
+            def _calls(name, fn, *a):
+                n = [0]
+                def prof(frame, event, arg):
+                    if event == 'call' and frame.f_code.co_name == name: n[0] += 1
+                sys.setprofile(prof)
+                try: r = fn(*a)
+                finally: sys.setprofile(None)
+                return r, n[0]
+            tree = ast.parse(code)
+            def _func(name):
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.FunctionDef) and node.name == name: return node
+                raise AssertionError(f'Die Funktion {name}() fehlt – achte auf den genauen Namen.')
+            def _recursive(name):
+                f = _func(name)
+                if not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == name for n in ast.walk(f)):
+                    raise AssertionError(f'{name}() soll rekursiv sein – die Funktion muss sich selbst aufrufen.')
+            def _noloop(name):
+                f = _func(name)
+                if any(isinstance(n, (ast.For, ast.While, ast.comprehension)) for n in ast.walk(f)):
+                    raise AssertionError(f'{name}() soll ohne Schleife (for/while/Comprehension) auskommen – nur mit Rekursion.')
+            def _noop(name, *ops):
+                f = _func(name)
+                bad = tuple(getattr(ast, o) for o in ops)
+                sym = {'Mult': '*', 'Pow': '**'}
+                if any(isinstance(n, ast.BinOp) and isinstance(n.op, bad) for n in ast.walk(f)):
+                    raise AssertionError(f'In {name}() ist der Operator ' + ' bzw. '.join(sym[o] for o in ops) + ' nicht erlaubt.')
+            g.update(_src=code, _out=_out, _capture=_capture, _calls=_calls, _recursive=_recursive, _noloop=_noloop, _noop=_noop, _func=_func)
+            if demo: _demo_tree()
+            try:
+                exec(compile(tests, '<test>', 'exec'), g); test = {'ok': True}
+            except AssertionError as e:
+                test = {'ok': False, 'msg': str(e) or 'Ein Test ist fehlgeschlagen.'}
+            except BaseException as e:
+                f = _fmt(e, '<dein code>')
+                test = {'ok': False, 'msg': f"Beim Testen ist ein Fehler aufgetreten: {f['type']}: {f['msg']}" + (f" (Zeile {f['line']})" if f['line'] else '') + (' – ' + f['hint'] if f['hint'] else '')}
+    finally:
+        sys.stdout, sys.stderr = old
+        sys.setprofile(None)
+    return {'out': user_out if err is None else out.getvalue(), 'err': err, 'test': test}
+`;
+const PY_WORKER = `
+let py = null;
+const ready = (async () => {
+  importScripts('${PYO}pyodide.js');
+  py = await loadPyodide({ indexURL: '${PYO}' });
+  py.runPython(${JSON.stringify(PY_SETUP)});
+})();
+onmessage = async (e) => {
+  const { id, code, stdin, tests, demo, trace } = e.data;
+  try { await ready; } catch (err) { postMessage({ id, fatal: 'Python konnte nicht geladen werden (Internet nötig): ' + err.message }); return; }
+  try {
+    const r = trace ? py.globals.get('_trace')(code, trace, !!demo) : py.globals.get('_run')(code, stdin || '', tests || '', !!demo);
+    const res = r.toJs({ dict_converter: Object.fromEntries }); r.destroy();
+    postMessage({ id, ...res });
+  } catch (err) { postMessage({ id, fatal: String(err) }); }
+};
+postMessage({ hello: true });
+`;
+let pyWorker = null, pyReady = null, pyMsgId = 0; const pyPending = new Map();
+function startPy(){
+  if (pyWorker) return pyReady;
+  const blob = new Blob([PY_WORKER], { type: 'text/javascript' });
+  pyWorker = new Worker(URL.createObjectURL(blob));
+  pyWorker.onmessage = e => { const p = pyPending.get(e.data.id); if (p) { pyPending.delete(e.data.id); p(e.data); } };
+  pyWorker.onerror = e => { for (const [k, p] of pyPending) p({ fatal: 'Python-Fehler: ' + (e.message || 'Worker abgestürzt') }); pyPending.clear(); };
+  pyReady = pyRunRaw({ code: 'pass' }, 60000);
+  return pyReady;
+}
+function killPy(){ if (pyWorker) { pyWorker.terminate(); pyWorker = null; pyReady = null; } for (const [k, p] of pyPending) p({ fatal: 'abgebrochen' }); pyPending.clear(); }
+function pyRunRaw(msg, timeout){
+  return new Promise(res => {
+    const id = ++pyMsgId; let done = false;
+    pyPending.set(id, d => { done = true; clearTimeout(t); res(d); });
+    const t = setTimeout(() => { if (!done) { pyPending.delete(id); killPy(); res({ timeout: true }); } }, timeout);
+    pyWorker.postMessage({ id, ...msg });
+  });
+}
+async function pyRun(msg, onWait){
+  const first = !pyWorker;
+  startPy();
+  if (first && onWait) onWait();
+  const r0 = await pyReady;
+  if (r0 && (r0.fatal || r0.timeout)) { killPy(); return { fatal: r0.fatal || 'Python lädt zu lange – ist Internet verfügbar?' }; }
+  return pyRunRaw(msg, 8000);
+}
+function pyErrHTML(err){
+  return `⛔ <b>${esc(err.type)}</b>${err.line ? ' in Zeile ' + err.line : ''}: <code>${esc(err.msg)}</code>${err.hint ? '<div style="margin-top:4px">' + esc(err.hint) + '</div>' : ''}`;
+}
+const PY_LOADING = '<div class="meta" style="padding:8px">Python wird geladen (beim ersten Mal ein paar Sekunden, Internet nötig) …</div>';
+function outHTML(text, empty='(keine Ausgabe)'){ return `<pre class="pyout">${text ? esc(text) : '<span class="muted">' + empty + '</span>'}</pre>`; }
+function normOut(s){ return String(s).replace(/\r/g, '').split('\n').map(x => x.replace(/\s+$/, '')).join('\n').replace(/^\n+|\n+$/g, ''); }
+
+/* ---- python editor helpers ---- */
+function pyKeys(ta){
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      const v = ta.value, s = ta.selectionStart;
+      const lineStart = v.lastIndexOf('\n', s - 1) + 1;
+      const line = v.slice(lineStart, s);
+      let ind = (/^\s*/.exec(line) || [''])[0];
+      if (/:\s*(#.*)?$/.test(line)) ind += '    ';
+      e.preventDefault(); insertAt(ta, '\n' + ind);
+    } else if (e.key === 'Backspace' && ta.selectionStart === ta.selectionEnd) {
+      const v = ta.value, s = ta.selectionStart, ls = v.lastIndexOf('\n', s - 1) + 1, before = v.slice(ls, s);
+      if (before.length >= 4 && /^ +$/.test(before) && before.length % 4 === 0) { e.preventDefault(); ta.setRangeText('', s - 4, s, 'end'); ta.dispatchEvent(new Event('input')); }
+    }
+  });
+}
+
+/* ---- python exercise ---- */
+function renderPyExercise(l, idx, ex, body){
+  const needsIn = !!ex.stdin;
+  body.innerHTML = `<div style="max-width:980px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge" style="color:var(--accent2)">Python</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task}</div>${ex.note ? '<div class="note">ℹ️ ' + ex.note + '</div>' : ''}</div>
+    <div class="editor"><div class="gutter" id="gutter"></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="# Schreib hier deinen Python-Code …"></textarea></div>
+    ${needsIn ? `<div class="stdin-row"><label for="stdin">Eingaben für input() <span class="muted">(eine pro Zeile)</span></label><textarea id="stdin" rows="2" spellcheck="false"></textarea></div>` : ''}
+    <div class="actions">
+      <button class="blue" id="btnRun">▶ Ausführen<span class="kbd">Strg+Enter</span></button>
+      <button class="primary" id="btnCheck">✓ Prüfen<span class="kbd">Strg+Shift+Enter</span></button>
+      <span class="spacer"></span>
+      ${store.code[ex.id] && ex.starter ? '<button id="btnReset" class="ghost">Vorlage wiederherstellen</button>' : ''}
+      <button id="btnHint">💡 Tipp</button>
+      <button id="btnSol">Lösung</button>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <div class="hintbox" id="hint">💡 ${ex.hint || 'Kein Tipp vorhanden.'}</div>
+    <div class="solbox" id="sol"></div>
+    <div class="result" id="res"></div>
+    ${navHTML(l, idx)}</div>`;
+  const go = wireNav(l, idx);
+  const ta = $('#code');
+  ta.value = store.code[ex.id] != null ? store.code[ex.id] : (ex.starter || '');
+  setupEditor(ta, v => { store.code[ex.id] = v; save(); }, 'py');
+  pyKeys(ta);
+  setTimeout(() => ta.focus(), 30);
+  const si = $('#stdin'); if (si) si.value = ex.stdin;
+  if ($('#btnReset')) $('#btnReset').onclick = () => { ta.value = ex.starter; ta.dispatchEvent(new Event('input')); };
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  const hideFb = () => { $('#fb').className = 'feedback'; };
+  const busy = on => { $('#btnRun').disabled = $('#btnCheck').disabled = on; };
+  async function exec(tests){
+    hideFb(); busy(true);
+    $('#res').innerHTML = '<div class="meta" style="padding:8px">läuft …</div>';
+    const r = await pyRun({ code: ta.value, stdin: si ? si.value : '', tests, demo: !!ex.demo }, () => { $('#res').innerHTML = PY_LOADING; });
+    busy(false);
+    if (r.fatal) { $('#res').innerHTML = ''; fb('err', '⛔ ' + esc(r.fatal)); return null; }
+    if (r.timeout) { $('#res').innerHTML = ''; fb('err', '⏱️ <b>Zeitlimit überschritten</b> (8 s). Endlosschleife? Oder eine Rekursion, die viel zu viele Aufrufe macht?'); return null; }
+    $('#res').innerHTML = '<h4 style="margin:12px 2px 4px;font-size:13px;color:var(--muted)">Ausgabe</h4>' + outHTML(r.out);
+    if (r.err) { fb('err', pyErrHTML(r.err)); return null; }
+    return r;
+  }
+  $('#btnRun').onclick = () => exec('');
+  $('#btnCheck').onclick = async () => {
+    if (!ta.value.trim()) { fb('info', 'Schreib zuerst deinen Code in den Editor.'); return; }
+    const r = await exec(ex.tests); if (!r) return;
+    if (r.test && r.test.ok) {
+      const first = !store.done[ex.id];
+      store.done[ex.id] = true; save(); renderNav();
+      $('.ex-strip button.on').classList.add(store.peek[ex.id] ? 'peek' : 'done');
+      fb('ok', '✅ <b>Richtig!</b> Alle Tests bestanden.' + (store.peek[ex.id] && first ? ' <span class="muted">(mit Blick auf die Lösung – versuch sie später nochmal ohne)</span>' : '') + (ex.explain ? '<div style="margin-top:6px">' + ex.explain + '</div>' : '') + nextBtnHTML(l, idx));
+      bindNextBtn(l, idx, go);
+    } else fb('err', '❌ ' + esc(r.test ? r.test.msg : 'Test konnte nicht ausgeführt werden.'));
+  };
+  $('#btnHint').onclick = () => $('#hint').classList.toggle('show');
+  $('#btnSol').onclick = () => solToggle(ex, 'py');
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); (e.shiftKey ? $('#btnCheck') : $('#btnRun')).click(); } });
+}
+function nextBtnHTML(l, idx){
+  const nb = idx < l.exercises.length - 1 ? '<button class="primary" id="fbNext">Nächste Übung →</button>' : (L.indexOf(l) < L.length - 1 ? '<button class="primary" id="fbNext">Kapitel geschafft! Weiter zu ' + esc(L[L.indexOf(l)+1].short) + ' →</button>' : '<b>🎉 Alles geschafft!</b>');
+  return '<div class="next">' + nb + '</div>';
+}
+function bindNextBtn(l, idx, go){ const nb = $('#fbNext'); if (nb) nb.onclick = () => { if (idx < l.exercises.length - 1) go(1); else location.hash = L[L.indexOf(l)+1].id; }; }
+function solToggle(ex, lang){
+  const s = $('#sol');
+  if (s.classList.contains('show')) { s.classList.remove('show'); return; }
+  const show = () => {
+    if (!store.done[ex.id]) { store.peek[ex.id] = true; save(); }
+    s.classList.add('show');
+    s.innerHTML = '<b>Musterlösung</b> <span class="muted" style="font-size:12.5px">– tipp sie ab statt zu kopieren, dann bleibt sie hängen.</span><pre>' + hl(ex.solution, lang) + '</pre>';
+  };
+  if (!store.done[ex.id] && !s.dataset.confirm) {
+    s.dataset.confirm = '1';
+    s.innerHTML = 'Sicher? Am meisten lernst du, wenn du es zuerst selbst versuchst (Tipp hilft!). <button id="solYes" style="margin-left:8px;padding:4px 10px">Ja, Lösung zeigen</button>';
+    s.classList.add('show'); $('#solYes').onclick = show; return;
+  }
+  show();
+}
+
+/* ---- "Was gibt der Code aus?" ---- */
+function renderOutputExercise(l, idx, ex, body){
+  body.innerHTML = `<div style="max-width:900px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge">Ausgabe vorhersagen</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task || 'Was gibt dieser Code aus? Überleg zuerst selbst – ohne Ausführen.'}</div></div>
+    <pre class="predict-q">${hl(ex.code, 'py')}</pre>
+    <div class="stdin-row"><label for="guess">Deine Vorhersage <span class="muted">(genau so, wie Python es ausgibt – jede Ausgabezeile in eine eigene Zeile)</span></label><textarea id="guess" rows="${Math.max(2, Math.min(8, (ex.lines || 3)))}" spellcheck="false"></textarea></div>
+    <div class="actions"><button class="primary" id="btnGuess">✓ Prüfen</button></div>
+    <div class="feedback" id="fb"></div><div class="result" id="res"></div>${navHTML(l, idx)}</div>`;
+  const go = wireNav(l, idx);
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  const inp = $('#guess'); setTimeout(() => inp.focus(), 30);
+  let tries = 0;
+  $('#btnGuess').onclick = async () => {
+    if (!inp.value.trim()) { fb('info', 'Schreib zuerst deine Vorhersage hinein.'); return; }
+    $('#btnGuess').disabled = true;
+    const r = await pyRun({ code: ex.code }, () => { $('#res').innerHTML = PY_LOADING; });
+    $('#btnGuess').disabled = false;
+    if (r.fatal || r.timeout) { fb('err', '⛔ ' + esc(r.fatal || 'Zeitlimit')); return; }
+    const actual = r.err ? r.out + (r.out && !r.out.endsWith('\n') ? '\n' : '') + r.err.type + ': ' + r.err.msg : r.out;
+    const ok = normOut(inp.value) === normOut(actual);
+    const show = () => { $('#res').innerHTML = '<h4 style="margin:12px 2px 4px;font-size:13px;color:var(--muted)">Echte Ausgabe</h4>' + outHTML(actual); };
+    if (ok) {
+      show(); store.done[ex.id] = true; save(); renderNav(); $('.ex-strip button.on').classList.add('done');
+      fb('ok', '✅ <b>Richtig!</b> ' + (ex.explain || '') + nextBtnHTML(l, idx)); bindNextBtn(l, idx, go);
+    } else if (++tries >= 2) {
+      show(); fb('err', '❌ Leider nicht. Vergleiche mit der echten Ausgabe unten. ' + (ex.explain || ''));
+    } else fb('err', '❌ Nicht ganz – prüf jede Zeile nochmal (Groß-/Kleinschreibung, Anführungszeichen, Kommastellen) und versuch es erneut.');
+  };
+}
+
+/* ---- theory example (python) ---- */
+function pyExampleBox(ex){
+  const code = ex.textContent.replace(/^\n+|\s+$/g, ''), stdin = ex.dataset.stdin || '', demo = 'demo' in ex.dataset;
+  const box = document.createElement('div'); box.className = 'example-box';
+  box.innerHTML = `<div class="bar">Beispiel · <span class="db">Python</span>${stdin ? ' · <span class="muted">Eingabe: ' + esc(stdin.replace(/\n/g, ' ⏎ ')) + '</span>' : ''}<button>▶ Ausführen</button></div><pre>${hl(code, 'py')}</pre><div class="out"></div>`;
+  ex.replaceWith(box);
+  box.querySelector('button').onclick = async () => {
+    const out = box.querySelector('.out');
+    out.innerHTML = '<div class="meta" style="padding:8px">läuft …</div>';
+    const r = await pyRun({ code, stdin, demo }, () => { out.innerHTML = PY_LOADING; });
+    if (r.fatal || r.timeout) { out.innerHTML = '<div class="feedback err show" style="margin:10px">⛔ ' + esc(r.fatal || 'Zeitlimit überschritten') + '</div>'; return; }
+    out.innerHTML = '<div style="padding:0 10px 10px">' + outHTML(r.out) + (r.err ? '<div class="feedback err show" style="margin:8px 0 0">' + pyErrHTML(r.err) + '</div>' : '') + '</div>';
+  };
+}
+
+
+
+/* ---- put items in the right order ---- */
+function renderOrder(l, idx, ex, body){
+  const n = ex.items.length;
+  let pool = ex.items.map((t, k) => k);
+  // deterministic shuffle per exercise (not the original order)
+  let seed = [...ex.id].reduce((a, c) => a * 31 + c.charCodeAt(0) >>> 0, 7);
+  const rnd = () => (seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296;
+  do { for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; } } while (n > 1 && pool.every((v, k) => v === k));
+  let picked = [];
+  body.innerHTML = `<div style="max-width:860px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge">Reihenfolge</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task}</div><div class="note" style="color:var(--muted)">Klick die Begriffe der Reihe nach an. Ein Klick auf einen bereits gewählten Begriff nimmt ihn wieder heraus.</div></div>
+    <div class="ord-cols"><div><div class="lbl">Begriffe</div><div id="ordPool" class="ord-list"></div></div><div><div class="lbl">Deine Reihenfolge</div><ol id="ordPick" class="ord-list ord-pick"></ol></div></div>
+    <div class="actions"><button class="primary" id="btnOrd">✓ Prüfen</button><button id="ordReset" class="ghost">↺ Neu</button></div>
+    <div class="feedback" id="fb"></div>${navHTML(l, idx)}</div>`;
+  const go = wireNav(l, idx);
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  function draw(res){
+    $('#ordPool').innerHTML = pool.filter(k => !picked.includes(k)).map(k => `<button data-k="${k}">${esc(ex.items[k])}</button>`).join('') || '<div class="muted" style="padding:6px">alle gewählt ✓</div>';
+    $('#ordPick').innerHTML = picked.map((k, p) => `<li><button data-k="${k}" class="${res ? (k === p ? 'right' : 'wrong') : ''}">${esc(ex.items[k])}</button></li>`).join('');
+    body.querySelectorAll('#ordPool button').forEach(b => b.onclick = () => { picked.push(+b.dataset.k); $('#fb').className = 'feedback'; draw(); });
+    body.querySelectorAll('#ordPick button').forEach(b => b.onclick = () => { picked = picked.filter(k => k !== +b.dataset.k); $('#fb').className = 'feedback'; draw(); });
+  }
+  draw();
+  $('#ordReset').onclick = () => { picked = []; $('#fb').className = 'feedback'; draw(); };
+  $('#btnOrd').onclick = () => {
+    if (picked.length < n) { fb('info', 'Ordne zuerst alle ' + n + ' Begriffe ein.'); return; }
+    const right = picked.filter((k, p) => k === p).length;
+    draw(true);
+    if (right === n) {
+      store.done[ex.id] = true; save(); renderNav(); $('.ex-strip button.on').classList.add('done');
+      fb('ok', '✅ <b>Richtig!</b> ' + (ex.explain || '') + nextBtnHTML(l, idx)); bindNextBtn(l, idx, go);
+    } else fb('err', `❌ ${right} von ${n} an der richtigen Stelle (grün). Klick die roten heraus und ordne sie neu.`);
+  };
+}
+
+/* ---- open question with sample answer ---- */
+function renderReflect(l, idx, ex, body){
+  body.innerHTML = `<div style="max-width:860px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge">Offene Frage</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ erledigt</span>' : ''}</div><div class="text">${ex.task}</div></div>
+    <div class="stdin-row"><label for="refl">Deine Antwort <span class="muted">(wird in diesem Browser gespeichert)</span></label><textarea id="refl" rows="6" spellcheck="true" style="font-family:var(--sans);font-size:15px"></textarea></div>
+    <div class="actions"><button class="primary" id="btnRefl">Fertig – Musterantwort zeigen</button></div>
+    <div class="feedback" id="fb"></div>${navHTML(l, idx)}</div>`;
+  const go = wireNav(l, idx);
+  const ta = $('#refl'); ta.value = store.code[ex.id] || '';
+  ta.addEventListener('input', () => { store.code[ex.id] = ta.value; save(); });
+  setTimeout(() => ta.focus(), 30);
+  $('#btnRefl').onclick = () => {
+    const f = $('#fb');
+    if (ta.value.trim().length < 15) { f.className = 'feedback show info'; f.innerHTML = 'Schreib zuerst ein paar Sätze – dann kannst du mit der Musterantwort vergleichen.'; return; }
+    store.done[ex.id] = true; save(); renderNav(); $('.ex-strip button.on').classList.add('done');
+    f.className = 'feedback show ok';
+    f.innerHTML = '📝 <b>Musterantwort</b> – vergleiche mit deiner. Es gibt nicht nur eine richtige Lösung.<div style="margin-top:6px">' + ex.sample + '</div>' + nextBtnHTML(l, idx);
+    bindNextBtn(l, idx, go);
+  };
+}
+
+/* ---- multiple choice with several correct answers (test rules) ---- */
+function renderMulti(l, idx, ex, body){
+  body.innerHTML = `<div style="max-width:860px">${stripHTML(l, idx)}
+    <div class="task"><div class="head">Übung ${idx+1} von ${l.exercises.length} · <span class="typebadge">Multiple Choice – keine, eine, mehrere oder alle richtig</span>${store.done[ex.id] ? ' · <span style="color:var(--ok)">✓ gelöst</span>' : ''}</div><div class="text">${ex.task}</div>${ex.code ? '<pre class="predict-q" style="margin-top:10px">' + hl(ex.code, 'py') + '</pre>' : ''}</div>
+    <div class="quiz-opts multi">${ex.options.map((o, k) => `<label class="mopt" data-o="${k}"><input type="checkbox"> <span>${o}</span></label>`).join('')}</div>
+    <div class="actions"><button class="primary" id="btnMulti">✓ Prüfen</button><span class="muted" style="font-size:12.5px;align-self:center">Bewertung wie im Test: alle 4 Kästchen richtig = 1 Punkt, 3 von 4 = 0,5, sonst 0</span></div>
+    <div class="feedback" id="fb"></div>${navHTML(l, idx)}</div>`;
+  const go = wireNav(l, idx);
+  const fb = (cls, html) => { const f = $('#fb'); f.className = 'feedback show ' + cls; f.innerHTML = html; };
+  $('#btnMulti').onclick = () => {
+    const boxes = [...body.querySelectorAll('.mopt')];
+    let right = 0;
+    boxes.forEach((b, k) => {
+      const checked = b.querySelector('input').checked, should = ex.correct.includes(k);
+      b.classList.remove('right', 'wrong');
+      if (checked === should) right++;
+      if (should) b.classList.add('right'); else if (checked) b.classList.add('wrong');
+    });
+    const pts = right === boxes.length ? 1 : (right === boxes.length - 1 ? 0.5 : 0);
+    if (right === boxes.length) {
+      store.done[ex.id] = true; save(); renderNav(); $('.ex-strip button.on').classList.add('done');
+      fb('ok', `✅ <b>Alle ${boxes.length} Kästchen richtig – 1 Punkt.</b> ${ex.explain || ''}` + nextBtnHTML(l, idx)); bindNextBtn(l, idx, go);
+    } else {
+      fb('err', `❌ <b>${right} von ${boxes.length}</b> Kästchen richtig → ${String(pts).replace('.', ',')} Punkte. Grün umrandet = hätte angekreuzt werden müssen, rot = falsch angekreuzt. ${ex.explain || ''}<div style="margin-top:6px"><button id="mReset" style="font-size:12.5px;padding:4px 10px">Nochmal versuchen</button></div>`);
+      $('#mReset').onclick = () => { boxes.forEach(b => { b.classList.remove('right', 'wrong'); b.querySelector('input').checked = false; }); $('#fb').className = 'feedback'; };
+    }
+  };
+}
+
+/* ---- call stack tracer ---- */
+function traceBox(el){
+  const code = el.textContent.replace(/^\n+|\s+$/g, ''), fn = el.dataset.fn, demo = 'demo' in el.dataset;
+  const box = document.createElement('div'); box.className = 'trace-box';
+  box.innerHTML = `<div class="bar">🔍 Schritt für Schritt · <span class="db">Call Stack von ${esc(fn)}()</span><button class="primary">▶ Starten</button></div>
+    <div class="trace-grid"><pre class="trace-code">${hl(code, 'py')}</pre><div class="trace-live"><div class="muted" style="padding:14px">Klick auf „Starten“, dann gehst du mit ▶ Aufruf für Aufruf durch.</div></div></div>`;
+  el.replaceWith(box);
+  let ev = null, i = -1, timer = null;
+  const live = box.querySelector('.trace-live');
+  function state(k){
+    const stack = []; let out = ''; let last = null;
+    for (let j = 0; j <= k; j++) {
+      const [t, v] = ev[j];
+      if (t === 'call') { stack.push({ args: v, ret: null }); last = { t, v }; }
+      else if (t === 'return') { const f = stack.pop(); last = { t, v, args: f ? f.args : '' }; if (stack.length) stack[stack.length - 1].got = v; }
+      else { out += v; last = { t, v }; }
+    }
+    return { stack, out, last };
+  }
+  function render(){
+    if (i < 0) return;
+    const { stack, out, last } = state(i);
+    let cap = '';
+    if (last.t === 'call') cap = `📥 <b>Aufruf</b> <code>${esc(fn)}(${esc(last.v)})</code> – ein neuer Frame kommt <b>oben</b> auf den Stapel.`;
+    else if (last.t === 'return') cap = `📤 <code>${esc(fn)}(${esc(last.args)})</code> ist fertig und <b>liefert ${esc(last.v)}</b> zurück – sein Frame wird vom Stapel <b>entfernt</b>.` + (stack.length ? ' Der Aufruf darunter macht weiter.' : ' Der Stapel ist leer – fertig!');
+    else cap = `🖨️ <b>Ausgabe:</b> <code>${esc(last.v.replace(/\n$/, ''))}</code>`;
+    const frames = stack.slice().reverse().map((f, k) => `<div class="fr ${k === 0 ? 'run' : ''}"><span>${esc(fn)}(${esc(f.args)})</span><span class="st8">${k === 0 ? (last.t === 'return' && f.got != null ? (f.got === 'None' ? 'ist wieder dran' : 'erhält ' + esc(f.got) + ', rechnet weiter') : 'läuft') : 'wartet'}</span></div>`).join('') || '<div class="muted" style="padding:8px">(leer)</div>';
+    live.innerHTML = `<div class="trace-cap">${cap}</div>
+      <div class="trace-cols"><div><div class="lbl">Call Stack (oben = aktuell) · Tiefe ${stack.length}</div><div class="stack tstack">${frames}</div></div>
+      <div><div class="lbl">Ausgabe bisher</div><pre class="pyout">${out ? esc(out) : '<span class="muted">(noch nichts)</span>'}</pre></div></div>
+      <div class="trace-ctl"><button data-a="first" title="Anfang">⏮</button><button data-a="prev">◀ zurück</button><span class="cnt">Schritt ${i + 1} / ${ev.length}</span><button data-a="next" class="blue">weiter ▶</button><button data-a="last" title="Ende">⏭</button><button data-a="play">${timer ? '⏸ Pause' : '⏵ Abspielen'}</button></div>`;
+    live.querySelectorAll('[data-a]').forEach(b => b.onclick = () => act(b.dataset.a));
+  }
+  function act(a){
+    if (a === 'play') { if (timer) { clearInterval(timer); timer = null; } else { if (i >= ev.length - 1) i = -1; timer = setInterval(() => { if (i >= ev.length - 1) { clearInterval(timer); timer = null; render(); return; } i++; render(); }, 900); } render(); return; }
+    if (timer) { clearInterval(timer); timer = null; }
+    if (a === 'first') i = 0; else if (a === 'last') i = ev.length - 1; else if (a === 'prev') i = Math.max(0, i - 1); else i = Math.min(ev.length - 1, i + 1);
+    render();
+  }
+  box.querySelector('.bar button').onclick = async () => {
+    live.innerHTML = '<div class="meta" style="padding:12px">läuft …</div>';
+    const r = await pyRun({ code, trace: fn, demo }, () => { live.innerHTML = PY_LOADING; });
+    if (r.fatal || r.timeout) { live.innerHTML = '<div class="feedback err show" style="margin:10px">⛔ ' + esc(r.fatal || 'Zeitlimit') + '</div>'; return; }
+    ev = r.events || []; i = 0;
+    if (!ev.length) { live.innerHTML = '<div class="muted" style="padding:12px">Keine Aufrufe aufgezeichnet.</div>'; return; }
+    box.querySelector('.bar button').textContent = '↺ Neu starten';
+    render();
+  };
+}
+
+/* ---- python playground ---- */
+function renderPyPlay(){
+  $('#view').innerHTML = `<div class="crumbs">Spielwiese</div><h2 class="title">Freies Üben – Python</h2><div class="source">Probier beliebigen Python-Code aus – wie in der REPL, nur mit ganzen Programmen. Für <code>input()</code> trägst du die Eingaben unten ein. Der Ordner <code>projekt/</code> (für pathlib-Übungen) ist vorhanden.</div>
+  <div style="max-width:980px">
+    <div class="editor"><div class="gutter" id="gutter"></div><pre id="hl" aria-hidden="true"></pre><textarea id="code" spellcheck="false" placeholder="print('Hallo SEW!')"></textarea></div>
+    <div class="stdin-row"><label for="stdin">Eingaben für input() <span class="muted">(eine pro Zeile)</span></label><textarea id="stdin" rows="2" spellcheck="false"></textarea></div>
+    <div class="actions"><button class="blue" id="btnRun">▶ Ausführen<span class="kbd">Strg+Enter</span></button></div>
+    <div class="feedback" id="fb"></div><div class="result" id="res"></div>
+  </div>`;
+  const ta = $('#code'); ta.value = store.code['play-py'] || 'def greet(name="guest"):\n    return f"Hello, {name}!"\n\nprint(greet())\nprint(greet("Ada"))\n';
+  setupEditor(ta, v => { store.code['play-py'] = v; save(); }, 'py'); pyKeys(ta);
+  const doRun = async () => {
+    const f = $('#fb'); f.className = 'feedback';
+    $('#res').innerHTML = '<div class="meta" style="padding:8px">läuft …</div>';
+    const r = await pyRun({ code: ta.value, stdin: $('#stdin').value, demo: true }, () => { $('#res').innerHTML = PY_LOADING; });
+    if (r.fatal || r.timeout) { $('#res').innerHTML = ''; f.className = 'feedback show err'; f.innerHTML = r.timeout ? '⏱️ Zeitlimit überschritten (8 s) – Endlosschleife?' : '⛔ ' + esc(r.fatal); return; }
+    $('#res').innerHTML = '<h4 style="margin:12px 2px 4px;font-size:13px;color:var(--muted)">Ausgabe</h4>' + outHTML(r.out);
+    if (r.err) { f.className = 'feedback show err'; f.innerHTML = pyErrHTML(r.err); }
+  };
+  $('#btnRun').onclick = doRun;
+  ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); doRun(); } });
+}
+
+
+/* ---------- stopwatch / countdown ---------- */
+(function(){
+  const SK = 'insy-sew-stopwatch';
+  let st = { mode: 'up', running: false, start: 0, acc: 0, total: 50 * 60000, laps: [], open: false };
+  try { const v = JSON.parse(localStorage.getItem(SK)); if (v) st = Object.assign(st, v); } catch(e) {}
+  const save = () => { try { localStorage.setItem(SK, JSON.stringify(st)); } catch(e) {} };
+  const $ = s => document.querySelector(s);
+  const sw = $('#sw');
+  const elapsed = () => st.acc + (st.running ? Date.now() - st.start : 0);
+  const fmt = ms => { ms = Math.max(0, ms); const t = Math.floor(ms / 1000), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60; const p = n => String(n).padStart(2, '0'); return (h ? h + ':' + p(m) : p(m)) + ':' + p(sec); };
+  let beeped = false;
+  function beep(){ try { const a = new (window.AudioContext || window.webkitAudioContext)(); [0, .35, .7].forEach(t => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; o.connect(g); g.connect(a.destination); g.gain.setValueAtTime(.2, a.currentTime + t); o.start(a.currentTime + t); o.stop(a.currentTime + t + .2); }); } catch(e) {} }
+  function render(){
+    const e = elapsed();
+    const down = st.mode === 'down', left = st.total - e, over = down && left <= 0;
+    if (down && over && st.running) { st.acc = st.total; st.running = false; save(); if (!beeped) { beeped = true; beep(); } }
+    const txt = down ? fmt(left) : fmt(e);
+    $('#swTime').textContent = down && over ? '00:00' : txt;
+    $('#swTime').classList.toggle('alarm', down && over);
+    $('#swPillTime').textContent = (st.running || e > 0) ? (down && over ? 'Zeit um!' : txt) : 'Stoppuhr';
+    $('#swPill').classList.toggle('run', st.running);
+    $('#swPill').classList.toggle('alarm', down && over);
+    $('#swStart').textContent = st.running ? '⏸ Pause' : (e > 0 && !(down && over) ? '▶ Weiter' : '▶ Start');
+    sw.classList.toggle('open', st.open); sw.classList.toggle('down', down);
+    document.querySelectorAll('.sw-modes button').forEach(b => b.classList.toggle('on', b.dataset.m === st.mode));
+    $('#swLaps').innerHTML = st.laps.map((l, i) => `<li>${fmt(l)}${i ? ' <span style="opacity:.6">(+' + fmt(l - st.laps[i - 1]) + ')</span>' : ''}</li>`).join('');
+  }
+  const reset = () => { st.running = false; st.acc = 0; st.laps = []; beeped = false; };
+  $('#swPill').onclick = () => { st.open = !st.open; save(); render(); };
+  $('#swClose').onclick = () => { st.open = false; save(); render(); };
+  $('#swStart').onclick = () => {
+    if (st.running) { st.acc = elapsed(); st.running = false; }
+    else { if (st.mode === 'down' && elapsed() >= st.total) reset(); st.start = Date.now(); st.running = true; beeped = false; }
+    save(); render();
+  };
+  $('#swReset').onclick = () => { reset(); save(); render(); };
+  $('#swLap').onclick = () => { if (elapsed() > 0) { st.laps.push(elapsed()); save(); render(); } };
+  document.querySelectorAll('.sw-modes button').forEach(b => b.onclick = () => { if (st.mode !== b.dataset.m) { st.mode = b.dataset.m; reset(); save(); render(); } });
+  document.querySelectorAll('#swPresets [data-min]').forEach(b => b.onclick = () => { st.total = +b.dataset.min * 60000; $('#swMin').value = b.dataset.min; reset(); save(); render(); });
+  $('#swMin').onchange = () => { const v = Math.max(1, Math.min(300, +$('#swMin').value || 50)); st.total = v * 60000; reset(); save(); render(); };
+  $('#swMin').value = Math.round(st.total / 60000);
+  setInterval(render, 250); render();
+})();
+
+/* ---------- boot ---------- */
+$('#menuBtn').onclick = () => $('#side').classList.toggle('open');
+$('#subjInsy').onclick = () => { location.hash = 'start'; };
+$('#subjSew').onclick = () => { location.hash = 'sew'; };
+$('#subjItp').onclick = () => { location.hash = 'itp'; };
+$('#resetProgress').onclick = function(){
+  if (this.dataset.c) { store = {done:{}, peek:{}, code:{}, last:null}; save(); delete this.dataset.c; this.textContent = 'Fortschritt zurücksetzen'; route(); }
+  else { this.dataset.c = '1'; this.textContent = 'Wirklich? Nochmal klicken'; setTimeout(() => { delete this.dataset.c; this.textContent = 'Fortschritt zurücksetzen'; }, 4000); }
+};
+window.addEventListener('hashchange', route);
+initSqlJs().then(async s => {
+  SQL = s;
+  $('#loadmsg').textContent = 'Datenbank wird geladen …';
+  try { await getDB('northwind'); } catch(e) { $('#loadmsg').textContent = 'Fehler: ' + e.message; return; }
+  $('#loading').remove();
+  if (!location.hash) { let last = 'insy'; try { last = localStorage.getItem('insy-sew-subj') || 'insy'; } catch(e) {} if (last === 'sew' || last === 'itp') { location.hash = last; return; } }
+  route();
+  getDB('sakila').catch(() => {});
+}).catch(e => { $('#loadmsg').textContent = 'SQL-Engine konnte nicht starten: ' + e.message; });
+})();
+</script>
+</body>
+</html>
